@@ -7,7 +7,12 @@
 		{
 			"Name": "WelcomeWelldone",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"GameplayAbilities",
+				"EnhancedInput",
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
@@ -17,10 +22,10 @@
 			"TargetAllowList": [
 				"Editor"
 			]
+		},
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
 		}
-	],
-	"TargetPlatforms": [
-		"Linux",
-		"Windows"
 	]
 }
