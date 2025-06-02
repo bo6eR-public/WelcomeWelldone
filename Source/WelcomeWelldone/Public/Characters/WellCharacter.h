@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "WellCharacter.generated.h"
 
 
@@ -17,11 +18,15 @@ public:
 	AWellCharacter();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	class UWellAbilitySystemComponent* GetWellAbilitySystemComponent() const;
 	FORCEINLINE class UAttributeSet* GetAttributeSet() const;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	void AbilityInputPressed(FGameplayTag InInputTag);
+	void AbilityInputReleased(FGameplayTag InInputTag);
 
 protected:
 #pragma region Components

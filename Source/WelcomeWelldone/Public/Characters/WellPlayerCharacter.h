@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "InputActionValue.h"
 #include "WellCharacter.h"
 #include "WellPlayerCharacter.generated.h"
@@ -25,9 +24,6 @@ protected:
 private:
 	void Move(const FInputActionValue& Value); // input handle
 	void Look(const FInputActionValue& Value); // input handle
-	
-	void AbilityInputPressed(FGameplayTag InInputTag);
-	void AbilityInputReleased(FGameplayTag InInputTag);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess="true"))

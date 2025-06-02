@@ -78,13 +78,3 @@ void AWellPlayerCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(-LookAxis.Y);
 	}
 }
-
-void AWellPlayerCharacter::AbilityInputPressed(FGameplayTag InInputTag)
-{
-	UE_LOG(LogTemp, Warning, TEXT("AbilityInputPressed"));
-}
-
-void AWellPlayerCharacter::AbilityInputReleased(FGameplayTag InInputTag)
-{
-	UE_LOG(LogTemp, Warning, TEXT("AbilityInputReleased"));
-}

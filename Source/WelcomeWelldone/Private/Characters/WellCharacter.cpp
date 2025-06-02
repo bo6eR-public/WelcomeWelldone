@@ -29,7 +29,22 @@ void AWellCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void AWellCharacter::AbilityInputPressed(FGameplayTag InInputTag)
+{
+	AbilitySystemComponent->OnAbilityInputPressed(InInputTag);
+}
+
+void AWellCharacter::AbilityInputReleased(FGameplayTag InInputTag)
+{
+	AbilitySystemComponent->OnAbilityInputReleased(InInputTag);
+}
+
 UAbilitySystemComponent* AWellCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent ? AbilitySystemComponent : nullptr;
+}
+
+UWellAbilitySystemComponent* AWellCharacter::GetWellAbilitySystemComponent() const
 {
 	return AbilitySystemComponent ? AbilitySystemComponent : nullptr;
 }

@@ -6,11 +6,12 @@
 #include "GameFramework/PlayerController.h"
 #include "WellPlayerController.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class WELCOMEWELLDONE_API AWellPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+private:
+	virtual void ProcessPlayerInput(const float DeltaTime, const bool bGamePaused) override;
 };

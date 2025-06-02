@@ -11,7 +11,7 @@ public class WelcomeWelldone : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-			"GameplayTags", "GameplayTasks", "GameplayAbilities"
+			"GameplayTags", "GameplayTasks", "GameplayAbilities", "NetCore",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
