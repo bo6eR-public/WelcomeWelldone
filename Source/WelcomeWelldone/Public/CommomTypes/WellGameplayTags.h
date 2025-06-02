@@ -1,0 +1,12 @@
+﻿// Copyright © 2025 bo6eR. All rights reserved.
+
+#pragma once
+
+#include "NativeGameplayTags.h"
+
+namespace WellGameplayTags
+{
+	/** Input Tags **/
+	WELCOMEWELLDONE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Move);
+	WELCOMEWELLDONE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Look);
+}
