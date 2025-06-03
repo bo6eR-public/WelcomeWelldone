@@ -6,8 +6,13 @@
 #include "GameFramework/Character.h"
 
 
-bool UWellGameplayAbility_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                                   const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+UWellGameplayAbility_Jump::UWellGameplayAbility_Jump()
+{
+	//~ Per actor because of input ability replicated events
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
+bool UWellGameplayAbility_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{

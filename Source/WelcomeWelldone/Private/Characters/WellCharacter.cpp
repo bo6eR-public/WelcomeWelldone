@@ -19,6 +19,9 @@ AWellCharacter::AWellCharacter()
 	Camera->SetupAttachment(GetMesh());
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UWellAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+	
 	DefaultAttributeSet = CreateDefaultSubobject<UWellAttributeSet>(TEXT("AttributeSet"));
 }
 
