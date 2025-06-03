@@ -7,7 +7,7 @@
 
 
 bool UWellGameplayAbility_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+                                                   const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
@@ -32,20 +32,32 @@ void UWellGameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecHandle
 				AbilitySystemComponent->GetAvatarActor(), ECastCheckedType::NullAllowed))
 			{
 				Character->Jump();
-				//EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+				AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputReleased, Handle, GetCurrentActivationInfo().GetActivationPredictionKey()).AddUObject(this, &ThisClass::OnJumpInputReleased);
+				Character->LandedDelegate.AddDynamic(this, &ThisClass::OnCharacterLanded);
 			}
 		}
 	}
 }
 
-void UWellGameplayAbility_Jump::EndAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UWellGameplayAbility_Jump::OnJumpInputReleased()
 {
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-	if (const auto AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())
+	const auto AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
+	if (AbilitySystemComponent != nullptr)
 	{
-		if (ACharacter* Character = CastChecked<ACharacter>(
-			AbilitySystemComponent->GetAvatarActor(), ECastCheckedType::NullAllowed))
+		if (ACharacter* Character = Cast<ACharacter>(AbilitySystemComponent->GetAvatarActor()))
 			Character->StopJumping();
 	}
+	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), false, false);
+}
+
+void UWellGameplayAbility_Jump::OnCharacterLanded(const FHitResult& Hit)
+{
+	if (!Hit.bBlockingHit) return;
+	const auto AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
+	if (AbilitySystemComponent != nullptr)
+	{
+		if (ACharacter* Character = Cast<ACharacter>(AbilitySystemComponent->GetAvatarActor()))
+			Character->StopJumping();
+	}
+	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), false, false);
 }
