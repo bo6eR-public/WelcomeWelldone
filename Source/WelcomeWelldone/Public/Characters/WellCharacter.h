@@ -16,20 +16,22 @@ class WELCOMEWELLDONE_API AWellCharacter : public ACharacter, public IAbilitySys
 
 public:
 	AWellCharacter();
-
+	
+#pragma region AbilitySystem
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	class UWellAbilitySystemComponent* GetWellAbilitySystemComponent() const;
 	FORCEINLINE class UAttributeSet* GetAttributeSet() const;
+#pragma endregion 
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
 	void AbilityInputPressed(FGameplayTag InInputTag);
 	void AbilityInputReleased(FGameplayTag InInputTag);
 
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+
 protected:
-#pragma region Components
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
 	TObjectPtr<class UCameraComponent> Camera;
 	
@@ -38,6 +40,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
 	TObjectPtr<class UWellAttributeSet> DefaultAttributeSet;
-#pragma endregion 
+
+private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category=StartUpData, meta=(AllowPrivateAccess="true"))
+	TSoftObjectPtr<class UWellCommonStartUpDataAsset> StartUpData;
 
 };

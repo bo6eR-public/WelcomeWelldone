@@ -6,12 +6,13 @@
 #include "EnhancedInputSubsystems.h"
 #include "CommomTypes/WellGameplayTags.h"
 #include "Components/WellEnhancedInputComponent.h"
-#include "DataAssets/WellInputConfigDataAsset.h"
+#include "DataAssets/Input/WellInputConfigDataAsset.h"
 
 
 AWellPlayerCharacter::AWellPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
 void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
