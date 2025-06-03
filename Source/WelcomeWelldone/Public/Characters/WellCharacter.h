@@ -22,7 +22,7 @@ public:
 	class UWellAbilitySystemComponent* GetWellAbilitySystemComponent() const;
 	FORCEINLINE class UAttributeSet* GetAttributeSet() const;
 #pragma endregion 
-
+	
 protected:
 	void AbilityInputPressed(FGameplayTag InInputTag);
 	void AbilityInputReleased(FGameplayTag InInputTag);

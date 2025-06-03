@@ -43,7 +43,7 @@ void AWellCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	if (StartUpData)
+	if (!StartUpData.IsNull())
 	{
 		if (UObject* LoadedData = UAssetManager::GetStreamableManager().LoadSynchronous(StartUpData.ToSoftObjectPath()))
 		{

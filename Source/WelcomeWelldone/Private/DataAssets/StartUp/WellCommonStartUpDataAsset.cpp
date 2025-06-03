@@ -2,7 +2,6 @@
 
 
 #include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
-#include "AbilitySystem/Abilities/WellGameplayAbility.h"
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 
 
@@ -12,16 +11,18 @@ void UWellCommonStartUpDataAsset::GiveToAbilitySystemComponent(UWellAbilitySyste
 	ApplyEffects(DefaultEffects, AbilitySystem, ApplyLevel);
 }
 
-void UWellCommonStartUpDataAsset::GrantAbilities(TArray<TSubclassOf<UWellGameplayAbility>> Abilities, UWellAbilitySystemComponent* AbilitySystem, int32 Level)
+void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilityActionSet> Abilities, UWellAbilitySystemComponent* AbilitySystem, int32 Level)
 {
 	if (Abilities.IsEmpty()) return;
-	for (TSubclassOf<UWellGameplayAbility> Ability : Abilities)
+	for (const FAbilityActionSet& AbilitySet : Abilities)
 	{
-		if (Ability != nullptr)
+		if (AbilitySet.IsValid())
 		{
-			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability);
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilitySet.Ability);
 			AbilitySpec.SourceObject = AbilitySystem->GetAvatarActor();
 			AbilitySpec.Level = Level;
+			AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.Tag);
+			
 			AbilitySystem->GiveAbility(AbilitySpec);
 		}
 	}
