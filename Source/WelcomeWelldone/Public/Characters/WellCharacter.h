@@ -15,7 +15,7 @@ class WELCOMEWELLDONE_API AWellCharacter : public ACharacter, public IAbilitySys
 	GENERATED_BODY()
 
 public:
-	AWellCharacter();
+	AWellCharacter(const FObjectInitializer& ObjectInitializer);
 	
 #pragma region AbilitySystem
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;

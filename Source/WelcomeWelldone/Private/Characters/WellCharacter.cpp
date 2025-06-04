@@ -5,12 +5,14 @@
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/WellAttributeSet.h"
 #include "Camera/CameraComponent.h"
+#include "Components/WellCharacterMovementComponent.h"
 #include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
 #include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 
 
-AWellCharacter::AWellCharacter()
+AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
+	Super(ObjectInitializer.SetDefaultSubobjectClass<UWellCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;

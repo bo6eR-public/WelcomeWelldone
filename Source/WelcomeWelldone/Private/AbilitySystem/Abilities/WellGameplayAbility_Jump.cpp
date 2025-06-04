@@ -62,7 +62,10 @@ void UWellGameplayAbility_Jump::OnCharacterLanded(const FHitResult& Hit)
 	if (AbilitySystemComponent != nullptr)
 	{
 		if (ACharacter* Character = Cast<ACharacter>(AbilitySystemComponent->GetAvatarActor()))
+		{
+			Character->LandedDelegate.RemoveDynamic(this, &ThisClass::OnCharacterLanded);
 			Character->StopJumping();
+		}
 	}
 	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), false, false);
 }

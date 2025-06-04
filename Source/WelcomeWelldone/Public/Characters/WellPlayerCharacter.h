@@ -14,7 +14,7 @@ class WELCOMEWELLDONE_API AWellPlayerCharacter : public AWellCharacter
 	GENERATED_BODY()
 
 public:
-	AWellPlayerCharacter();
+	AWellPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
