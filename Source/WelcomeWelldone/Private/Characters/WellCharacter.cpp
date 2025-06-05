@@ -18,7 +18,7 @@ AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(GetMesh());
+	Camera->SetupAttachment(GetMesh(), TEXT("head"));
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UWellAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
