@@ -3,7 +3,9 @@
 
 #include "AbilitySystem/Abilities/WellGameplayAbility_Jump.h"
 #include "AbilitySystemComponent.h"
+#include "CommomTypes/WellGameplayTags.h"
 #include "GameFramework/Character.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 UWellGameplayAbility_Jump::UWellGameplayAbility_Jump()
@@ -18,8 +20,16 @@ bool UWellGameplayAbility_Jump::CanActivateAbility(const FGameplayAbilitySpecHan
 	{
 		if (const auto AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())
 		{
-			const ACharacter* Character = CastChecked<ACharacter>(AbilitySystemComponent->GetAvatarActor(), ECastCheckedType::NullAllowed);
-			return Character ? Character->CanJump() : false;
+			if (const ACharacter* Character = CastChecked<ACharacter>(AbilitySystemComponent->GetAvatarActor(), ECastCheckedType::NullAllowed))
+			{
+				//~ We've got the lenght of forward vector to know that the character is moving forward
+				const float LocalMovementDirection = UKismetMathLibrary::Dot_VectorVector
+				(
+					Character->GetVelocity().GetSafeNormal(),
+					Character->GetActorForwardVector()
+				);
+				return Character->CanJump() && LocalMovementDirection > 0.1f; // 0.1 means character has a little velocity
+			}
 		}
 	}
 	return false;
@@ -52,7 +62,10 @@ void UWellGameplayAbility_Jump::OnJumpInputReleased()
 		if (ACharacter* Character = Cast<ACharacter>(AbilitySystemComponent->GetAvatarActor()))
 			Character->StopJumping();
 	}
-	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), false, false);
+	AbilitySystemComponent->RemoveActiveEffectsWithAppliedTags(FGameplayTagContainer(WellGameplayTags::State_Jump));
+	
+	AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputReleased, GetCurrentAbilitySpecHandle(), GetCurrentActivationInfo().GetActivationPredictionKey()).RemoveAll(this);
+	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), true, false);
 }
 
 void UWellGameplayAbility_Jump::OnCharacterLanded(const FHitResult& Hit)
@@ -67,5 +80,7 @@ void UWellGameplayAbility_Jump::OnCharacterLanded(const FHitResult& Hit)
 			Character->StopJumping();
 		}
 	}
+	AbilitySystemComponent->RemoveActiveEffectsWithAppliedTags(FGameplayTagContainer(WellGameplayTags::State_Jump));
+	
 	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), false, false);
 }

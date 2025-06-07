@@ -23,8 +23,15 @@ AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
 	AbilitySystemComponent = CreateDefaultSubobject<UWellAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-	
+
 	DefaultAttributeSet = CreateDefaultSubobject<UWellAttributeSet>(TEXT("AttributeSet"));
+
+	//~ Lambda function for infinity gameplay effects
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetMaxMovementSpeedAttribute()).AddLambda
+	([this](const FOnAttributeChangeData& Data)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
+	});
 }
 
 void AWellCharacter::AbilityInputPressed(FGameplayTag InInputTag)
