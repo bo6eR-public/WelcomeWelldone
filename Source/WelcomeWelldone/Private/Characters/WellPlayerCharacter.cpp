@@ -41,8 +41,8 @@ void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if (UWellEnhancedInputComponent* EnhancedInputComponent = Cast<UWellEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAbilityInputConfig(InputConfig, this, &ThisClass::AbilityInputPressed, &ThisClass::AbilityInputReleased);
-		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Move);
-		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
+		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Move);
+		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	}
 }
 

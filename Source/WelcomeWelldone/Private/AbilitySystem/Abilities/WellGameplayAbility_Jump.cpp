@@ -39,16 +39,19 @@ void UWellGameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecHandle
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	if (CommitAbility(Handle, ActorInfo, ActivationInfo))
+	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
-		if (const auto AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())
+		if (CommitAbility(Handle, ActorInfo, ActivationInfo))
 		{
-			if (ACharacter* Character = CastChecked<ACharacter>(
-				AbilitySystemComponent->GetAvatarActor(), ECastCheckedType::NullAllowed))
+			if (const auto AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())
 			{
-				Character->Jump();
-				AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputReleased, Handle, GetCurrentActivationInfo().GetActivationPredictionKey()).AddUObject(this, &ThisClass::OnJumpInputReleased);
-				Character->LandedDelegate.AddDynamic(this, &ThisClass::OnCharacterLanded);
+				if (ACharacter* Character = CastChecked<ACharacter>(
+					AbilitySystemComponent->GetAvatarActor(), ECastCheckedType::NullAllowed))
+				{
+					Character->Jump();
+					AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputReleased, Handle, GetCurrentActivationInfo().GetActivationPredictionKey()).AddUObject(this, &ThisClass::OnJumpInputReleased);
+					Character->LandedDelegate.AddDynamic(this, &ThisClass::OnCharacterLanded);
+				}
 			}
 		}
 	}
@@ -62,8 +65,6 @@ void UWellGameplayAbility_Jump::OnJumpInputReleased()
 		if (ACharacter* Character = Cast<ACharacter>(AbilitySystemComponent->GetAvatarActor()))
 			Character->StopJumping();
 	}
-	AbilitySystemComponent->RemoveActiveEffectsWithAppliedTags(FGameplayTagContainer(WellGameplayTags::State_Jump));
-	
 	AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputReleased, GetCurrentAbilitySpecHandle(), GetCurrentActivationInfo().GetActivationPredictionKey()).RemoveAll(this);
 	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), true, false);
 }
@@ -80,7 +81,14 @@ void UWellGameplayAbility_Jump::OnCharacterLanded(const FHitResult& Hit)
 			Character->StopJumping();
 		}
 	}
-	AbilitySystemComponent->RemoveActiveEffectsWithAppliedTags(FGameplayTagContainer(WellGameplayTags::State_Jump));
-	
-	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), AbilitySystemComponent->AbilityActorInfo.Get(), GetCurrentActivationInfo(), true, false);
+}
+
+void UWellGameplayAbility_Jump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	if (const auto AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())
+	{
+		AbilitySystemComponent->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(WellGameplayTags::State_Jump));
+	}
 }
