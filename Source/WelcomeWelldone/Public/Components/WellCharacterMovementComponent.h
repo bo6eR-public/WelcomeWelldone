@@ -12,7 +12,7 @@ struct FCharacterGroundInfo
 {
 	GENERATED_BODY()
 	
-	UPROPERTY()
+	UPROPERTY(Transient)
 	FHitResult HitResult;
 
 	UPROPERTY()
@@ -26,6 +26,9 @@ class WELCOMEWELLDONE_API UWellCharacterMovementComponent : public UCharacterMov
 	GENERATED_BODY()
 
 public:
+	UWellCharacterMovementComponent();
+	
+	/* Uses in the main animation blueprint */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category=Data)
 	float TryGetGroundDistance() const;
 };

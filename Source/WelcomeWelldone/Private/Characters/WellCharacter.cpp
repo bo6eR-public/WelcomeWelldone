@@ -4,7 +4,7 @@
 #include "WelcomeWelldone/Public/Characters/WellCharacter.h"
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/WellAttributeSet.h"
-#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/WellCharacterMovementComponent.h"
 #include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
 #include "Engine/AssetManager.h"
@@ -17,8 +17,10 @@ AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(GetMesh(), TEXT("head"));
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+
+	GetCapsuleComponent()->SetCapsuleRadius(48.f);
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UWellAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);

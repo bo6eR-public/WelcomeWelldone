@@ -4,6 +4,7 @@
 #include "Characters/WellPlayerCharacter.h"
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Camera/CameraComponent.h"
 #include "CommomTypes/WellGameplayTags.h"
 #include "Components/WellEnhancedInputComponent.h"
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
@@ -11,8 +12,15 @@
 
 AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	PrimaryActorTick.bCanEverTick = false;
-	PrimaryActorTick.bStartWithTickEnabled = false;
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(GetMesh(), TEXT("head"));
+	Camera->SetRelativeTransform(FTransform
+	(
+	FRotator(0.f, 90.f, 0.f),
+		FVector(5.f, 15.f, 0.f),
+		FVector(0.5f, 0.5f, 0.5f)
+	));
+	Camera->bUsePawnControlRotation = true;
 }
 
 void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

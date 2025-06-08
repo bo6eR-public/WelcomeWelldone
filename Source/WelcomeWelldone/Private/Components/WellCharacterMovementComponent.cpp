@@ -6,6 +6,12 @@
 #include "GameFramework/Character.h"
 
 
+UWellCharacterMovementComponent::UWellCharacterMovementComponent()
+{
+	bUseControllerDesiredRotation = true;
+	RotationRate = FRotator(0.f, 7200.f, 0.f);
+}
+
 float UWellCharacterMovementComponent::TryGetGroundDistance() const
 {
 	if (!CharacterOwner || MovementMode == MOVE_Walking) { return 0.f; }

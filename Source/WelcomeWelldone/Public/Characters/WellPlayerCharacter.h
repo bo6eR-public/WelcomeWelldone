@@ -29,4 +29,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess="true"))
 	class UWellInputConfigDataAsset* InputConfig = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
+	TObjectPtr<class UCameraComponent> Camera;
+
 };

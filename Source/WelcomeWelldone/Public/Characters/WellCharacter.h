@@ -17,11 +17,9 @@ class WELCOMEWELLDONE_API AWellCharacter : public ACharacter, public IAbilitySys
 public:
 	AWellCharacter(const FObjectInitializer& ObjectInitializer);
 	
-#pragma region AbilitySystem
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	class UWellAbilitySystemComponent* GetWellAbilitySystemComponent() const;
 	FORCEINLINE class UAttributeSet* GetAttributeSet() const;
-#pragma endregion 
 	
 protected:
 	void AbilityInputPressed(FGameplayTag InInputTag);
@@ -32,9 +30,6 @@ protected:
 	virtual void OnRep_PlayerState() override;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
-	TObjectPtr<class UCameraComponent> Camera;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
 	TObjectPtr<class UWellAbilitySystemComponent> AbilitySystemComponent;
 
