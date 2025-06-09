@@ -3,25 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
-#include "AbilitySystem/Abilities/WellGameplayAbility.h"
+#include "CommomTypes/WellCommonTypes.h"
 #include "Engine/DataAsset.h"
 #include "WellCommonStartUpDataAsset.generated.h"
 
-
-USTRUCT(BlueprintType)
-struct FAbilityActionSet
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag Tag;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UWellGameplayAbility> Ability;
-
-	bool IsValid() const { return Tag.IsValid() && Ability; }
-};
 
 UCLASS()
 class WELCOMEWELLDONE_API UWellCommonStartUpDataAsset : public UDataAsset

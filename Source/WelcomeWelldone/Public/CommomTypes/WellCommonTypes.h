@@ -2,14 +2,21 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "AbilitySystem/Abilities/WellGameplayAbility.h"
+#include "WellCommonTypes.generated.h"
 
-/**
- * 
- */
-class WELCOMEWELLDONE_API WellCommonTypes
+
+USTRUCT(BlueprintType)
+struct FAbilityActionSet
 {
-public:
-	WellCommonTypes();
-	~WellCommonTypes();
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag Tag;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UWellGameplayAbility> Ability;
+
+	bool IsValid() const { return Tag.IsValid() && Ability; }
 };
