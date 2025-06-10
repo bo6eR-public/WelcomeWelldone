@@ -97,8 +97,11 @@ void AWellPlayerCharacter::Look(const FInputActionValue& Value)
 UEnhancedInputLocalPlayerSubsystem* AWellPlayerCharacter::GetInputSubSystem() const
 {
 	const ULocalPlayer* LocalPlayer = Cast<APlayerController>(GetController())->GetLocalPlayer();
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-	
-	checkf(Subsystem, TEXT("For some reason the input subsystem is not valid"));
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = nullptr;
+	if (LocalPlayer != nullptr)
+	{
+		Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+		checkf(Subsystem, TEXT("For some reason the input subsystem is not valid"));
+	}
 	return Subsystem;
 }

@@ -20,4 +20,7 @@ namespace WellGameplayTags
 	/** States Tags **/
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(State_Jump, "State.Jump");
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(State_Run, "State.Run");
+
+	/** Event Tags **/
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Event_LinkLayer, "Event.LinkLayer");
 }

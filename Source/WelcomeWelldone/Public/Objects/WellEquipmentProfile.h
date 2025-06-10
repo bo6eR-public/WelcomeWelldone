@@ -21,8 +21,9 @@ class WELCOMEWELLDONE_API UWellEquipmentProfile : public UObject
 public:
 	UWellEquipmentInstance* GetDefaultInstance() const;
 	
-	[[nodiscard]] UWellCommonStartUpDataAsset* GetApplyingAbilityData() const { return ApplyingAbilityData; }
-	[[nodiscard]] UWellInputConfigDataAsset* GetInputConfig() const { return OverridingInputConfig; }
+	FORCEINLINE [[nodiscard]] UWellCommonStartUpDataAsset* GetApplyingAbilityData() const { return ApplyingAbilityData; }
+	FORCEINLINE [[nodiscard]] UWellInputConfigDataAsset* GetInputConfig() const { return OverridingInputConfig; }
+	FORCEINLINE [[nodiscard]] TSubclassOf<UAnimInstance> GetAnimationLayer() const { return AnimationLayer; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Instance, meta=(AllowPrivateAccess="true"))
@@ -34,7 +35,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UWellInputConfigDataAsset> OverridingInputConfig;
 
-private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animation, meta=(AllowPrivateAccess="true"))
+	TSubclassOf<UAnimInstance> AnimationLayer;
+
+protected:
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	
 };

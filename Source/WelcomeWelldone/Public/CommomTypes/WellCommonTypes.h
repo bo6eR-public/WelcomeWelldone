@@ -8,6 +8,13 @@
 #include "WellCommonTypes.generated.h"
 
 
+UENUM(BlueprintType)
+enum class EConfirmType : uint8
+{
+	Successful,
+	Failed,
+};
+
 USTRUCT(BlueprintType)
 struct FAbilitySet
 {
@@ -34,4 +41,14 @@ struct FPlayerInputConfig
 	FGameplayTag ActionTag;
 
 	bool IsValid() const{ return InputAction && ActionTag.IsValid(); }
+};
+
+USTRUCT()
+struct FGameplayAbilityTargetData_AnimInstance : public FGameplayAbilityTargetData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TSubclassOf<UAnimInstance> AnimInstance = nullptr;
+	
 };

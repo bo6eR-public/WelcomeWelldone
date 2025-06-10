@@ -17,13 +17,21 @@ public:
 	void GiveToAbilitySystemComponent(class UAbilitySystemComponent* AbilitySystem, int32 ApplyLevel = 1);
 
 private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	TArray<FAbilitySet> DefaultAbilities;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Abilities, meta=(AllowPrivateAccess="true"))
+	TArray<FAbilitySet> AbilitySets;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Abilities, meta=(AllowPrivateAccess="true"))
+	TArray<TSubclassOf<UGameplayAbility>> OnGivenAbilities;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Abilities, meta=(AllowPrivateAccess="true"))
+	TArray<TSubclassOf<UGameplayAbility>> TriggeredAbilities;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Effects, meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<UGameplayEffect>> DefaultEffects;
 
 private:
 	void GrantAbilities(TArray<FAbilitySet> Abilities, UAbilitySystemComponent* AbilitySystem, int32 Level);
+	void GrantAbilities(TArray<TSubclassOf<UGameplayAbility>>& Abilities, UAbilitySystemComponent* AbilitySystem, int32 Level);
+	
 	void ApplyEffects(TArray<TSubclassOf<UGameplayEffect>> Effects, UAbilitySystemComponent* AbilitySystem, int32 Level);
 };

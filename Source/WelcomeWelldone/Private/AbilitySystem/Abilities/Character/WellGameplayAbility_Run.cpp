@@ -1,7 +1,7 @@
 ﻿// Copyright © 2025 bo6eR. All rights reserved.
 
 
-#include "AbilitySystem/Abilities/WellGameplayAbility_Run.h"
+#include "AbilitySystem/Abilities/Character//WellGameplayAbility_Run.h"
 #include "AbilitySystemComponent.h"
 #include "CommomTypes/WellGameplayTags.h"
 

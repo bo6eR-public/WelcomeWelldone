@@ -5,6 +5,9 @@
 #include "Characters/WellPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "Objects/WellEquipmentProfile.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "CommomTypes/WellGameplayTags.h"
+#include "CommomTypes/Libraries/WellFunctionLibrary.h"
 
 
 bool UWellEquipmentInstance::Initialize(AActor* SourceOwner)
@@ -22,6 +25,12 @@ void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfi
 	if (PlayerCharacter && PlayerCharacter->HasAuthority())
 	{
 		PlayerCharacter->OverrideInputSettings(OwningProfile->GetInputConfig());
+
+		FGameplayEventData Payload;
+		Payload.TargetData = UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(OwningProfile->GetAnimationLayer());
+		Payload.EventTag = WellGameplayTags::Event_LinkLayer;
+		
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PlayerCharacter, WellGameplayTags::Event_LinkLayer, Payload);
 	}
 }
 
