@@ -36,6 +36,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
 	TObjectPtr<class UWellAttributeSet> DefaultAttributeSet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
+	TObjectPtr<class UWellEquipmentComponent> EquipmentComponent;
+
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category=StartUpData, meta=(AllowPrivateAccess="true"))
 	TSoftObjectPtr<class UWellCommonStartUpDataAsset> StartUpData;

@@ -6,6 +6,7 @@
 #include "AbilitySystem/Attributes/WellAttributeSet.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WellCharacterMovementComponent.h"
+#include "Components/WellEquipmentComponent.h"
 #include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
 #include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
@@ -34,6 +35,8 @@ AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
 	{
 		GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
 	});
+
+	EquipmentComponent = CreateDefaultSubobject<UWellEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 void AWellCharacter::AbilityInputPressed(FGameplayTag InInputTag)

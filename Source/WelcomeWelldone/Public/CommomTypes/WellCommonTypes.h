@@ -3,12 +3,13 @@
 #pragma once
 
 #include "GameplayTagContainer.h"
+#include "InputAction.h"
 #include "AbilitySystem/Abilities/WellGameplayAbility.h"
 #include "WellCommonTypes.generated.h"
 
 
 USTRUCT(BlueprintType)
-struct FAbilityActionSet
+struct FAbilitySet
 {
 	GENERATED_BODY()
 
@@ -19,4 +20,18 @@ struct FAbilityActionSet
 	TSubclassOf<UWellGameplayAbility> Ability;
 
 	bool IsValid() const { return Tag.IsValid() && Ability; }
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerInputConfig
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UInputAction* InputAction = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories="Input"))
+	FGameplayTag ActionTag;
+
+	bool IsValid() const{ return InputAction && ActionTag.IsValid(); }
 };

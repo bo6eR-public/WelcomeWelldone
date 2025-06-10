@@ -2,19 +2,19 @@
 
 
 #include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
-#include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
+#include "AbilitySystemComponent.h"
 
 
-void UWellCommonStartUpDataAsset::GiveToAbilitySystemComponent(UWellAbilitySystemComponent* AbilitySystem, int32 ApplyLevel)
+void UWellCommonStartUpDataAsset::GiveToAbilitySystemComponent(class UAbilitySystemComponent* AbilitySystem, int32 ApplyLevel)
 {
 	GrantAbilities(DefaultAbilities, AbilitySystem, ApplyLevel);
 	ApplyEffects(DefaultEffects, AbilitySystem, ApplyLevel);
 }
 
-void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilityActionSet> Abilities, UWellAbilitySystemComponent* AbilitySystem, int32 Level)
+void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilitySet> Abilities, UAbilitySystemComponent* AbilitySystem, int32 Level)
 {
 	if (Abilities.IsEmpty()) return;
-	for (const FAbilityActionSet& AbilitySet : Abilities)
+	for (const FAbilitySet& AbilitySet : Abilities)
 	{
 		if (AbilitySet.IsValid())
 		{
@@ -28,7 +28,7 @@ void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilityActionSet> Abili
 	}
 }
 
-void UWellCommonStartUpDataAsset::ApplyEffects(TArray<TSubclassOf<UGameplayEffect>> Effects, UWellAbilitySystemComponent* AbilitySystem, int32 Level)
+void UWellCommonStartUpDataAsset::ApplyEffects(TArray<TSubclassOf<UGameplayEffect>> Effects, UAbilitySystemComponent* AbilitySystem, int32 Level)
 {
 	if (Effects.IsEmpty()) return;
 	for (TSubclassOf<UGameplayEffect> Effect : Effects)

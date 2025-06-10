@@ -4,6 +4,7 @@
 #include "Components/WellEquipmentComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
+#include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
 #include "Objects/WellEquipmentProfile.h"
 #include "Net/UnrealNetwork.h"
 #include "Objects/WellEquipmentInstance.h"
@@ -11,27 +12,30 @@
 
 /////////////////////////~ Equipment Fast Serializer Array And Item ~////////////////////////
 
-UWellEquipmentInstance* FEquipmentStorage::AddEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
+FEquipmentEntry& FEquipmentStorage::AddEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
 {
 	UWellEquipmentProfile* EquipmentCDO = EquipmentProfile.GetDefaultObject();
+	static FEquipmentEntry EmptyEntry(-1);
 	if (EquipmentCDO == nullptr)
-		return nullptr;
+		return EmptyEntry;
 
 	if (const auto ExtractedInstance = EquipmentCDO->GetDefaultInstance())
 	{
-		FEquipmentEntry Entry = EntriesStorage.AddDefaulted_GetRef();
+		FEquipmentEntry& Entry = EntriesStorage.AddDefaulted_GetRef();
 		Entry.Instance = ExtractedInstance;
 		Entry.InstigatorProfile = EquipmentProfile;
-
-		const auto AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningComponent->GetOwner());
-		if (const auto CustomAbilitySystem = Cast<UWellAbilitySystemComponent>(AbilitySystem))
+		
+		if (const auto AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningComponent->GetOwner()))
 		{
-			EquipmentCDO->GetApplyingData()->GiveToAbilitySystemComponent(CustomAbilitySystem);
+			if (const auto StartUpData = EquipmentCDO->GetApplyingAbilityData())
+			{
+				StartUpData->GiveToAbilitySystemComponent(AbilitySystem);
+			}
 		}
-
 		MarkItemDirty(Entry);
+		return Entry;
 	}
-	return nullptr;
+	return EmptyEntry;
 }
 
 void FEquipmentStorage::RemoveEntry(UWellEquipmentInstance* EntryInstance)
@@ -64,16 +68,21 @@ void FEquipmentStorage::PostReplicatedAdd(const TArrayView<int32> AddedIndices, 
 	for (int32 Index : AddedIndices)
 	{
 		FEquipmentEntry& Entry = EntriesStorage[Index];
-		if (Entry.Instance)
+		if (Entry.IsValid())
 		{
-			Entry.Instance->OnEquipped();
+			const auto OwningProfile = Entry.InstigatorProfile;
+			if (Entry.Instance->Initialize(OwningComponent->GetOwner()))
+			{
+				Entry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
+			}
 		}
 	}
 }
 
 /////////////////////////~ Equipment Component ~////////////////////////
 
-UWellEquipmentComponent::UWellEquipmentComponent() : EquipmentEntries(this)
+UWellEquipmentComponent::UWellEquipmentComponent(const FObjectInitializer& ObjectInitializer) :
+	Super(ObjectInitializer), EquipmentEntries(this)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
@@ -85,21 +94,29 @@ UWellEquipmentComponent::UWellEquipmentComponent() : EquipmentEntries(this)
 UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
 {
 	checkf(EquipmentProfile, TEXT("Equipment profile is not valid!"));
-	
-	if (UWellEquipmentInstance* ResultInstance = EquipmentEntries.AddEntry(EquipmentProfile))
+	if (GetOwner()->HasAuthority())
 	{
-		ResultInstance->OnEquipped();
-		return ResultInstance;
+		FEquipmentEntry& ResultEntry = EquipmentEntries.AddEntry(EquipmentProfile);
+		if (ResultEntry.IsValid() && ResultEntry.Instance->Initialize(GetOwner()))
+		{
+			const auto OwningProfile = ResultEntry.InstigatorProfile;
+			ResultEntry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
+			
+			return ResultEntry.Instance;
+		}
 	}
 	return nullptr;
 }
 
 void UWellEquipmentComponent::UnequipEntry(UWellEquipmentInstance* Instance)
 {
-	if (Instance != nullptr)
+	if (GetOwner()->HasAuthority())
 	{
-		Instance->OnUneqipped();
-		EquipmentEntries.RemoveEntry(Instance);
+		if (Instance != nullptr)
+		{
+			Instance->OnUneqipped();
+			EquipmentEntries.RemoveEntry(Instance);
+		}
 	}
 }
 

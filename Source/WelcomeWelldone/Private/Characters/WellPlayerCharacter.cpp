@@ -31,18 +31,24 @@ void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (!InputConfig) return;
 
-	const ULocalPlayer* LocalPlayer = Cast<APlayerController>(GetController())->GetLocalPlayer();
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-	checkf(Subsystem, TEXT("For some reason the input subsystem is not valid"));
-
-	Subsystem->ClearAllMappings();
-	Subsystem->AddMappingContext(InputConfig->MappingContext, 0);
+	GetInputSubSystem()->ClearAllMappings();
+	GetInputSubSystem()->AddMappingContext(InputConfig->MappingContext, 0);
 
 	if (UWellEnhancedInputComponent* EnhancedInputComponent = Cast<UWellEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAbilityInputConfig(InputConfig, this, &ThisClass::AbilityInputPressed, &ThisClass::AbilityInputReleased);
 		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Move);
 		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
+	}
+}
+
+void AWellPlayerCharacter::OverrideInputSettings(UWellInputConfigDataAsset* ApplyingInputConfig)
+{
+	GetInputSubSystem()->AddMappingContext(ApplyingInputConfig->MappingContext, 1);
+
+	if (UWellEnhancedInputComponent* EnhancedInputComponent = Cast<UWellEnhancedInputComponent>(InputComponent))
+	{
+		EnhancedInputComponent->BindAbilityInputConfig(ApplyingInputConfig, this, &ThisClass::AbilityInputPressed, &ThisClass::AbilityInputReleased);
 	}
 }
 
@@ -86,4 +92,13 @@ void AWellPlayerCharacter::Look(const FInputActionValue& Value)
 	{
 		AddControllerPitchInput(-LookAxis.Y);
 	}
+}
+
+UEnhancedInputLocalPlayerSubsystem* AWellPlayerCharacter::GetInputSubSystem() const
+{
+	const ULocalPlayer* LocalPlayer = Cast<APlayerController>(GetController())->GetLocalPlayer();
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	
+	checkf(Subsystem, TEXT("For some reason the input subsystem is not valid"));
+	return Subsystem;
 }

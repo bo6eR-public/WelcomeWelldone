@@ -13,37 +13,45 @@ struct FEquipmentEntry : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
+	FEquipmentEntry() {}
+	explicit FEquipmentEntry(int32 InHandle) : Handle(InHandle) {}
+
+public:
+	bool IsValid() { return Handle > 0 && Instance; }
+
 public:
 	UPROPERTY()
 	TSubclassOf<class UWellEquipmentProfile> InstigatorProfile;
 	
 	UPROPERTY()
 	TObjectPtr<class UWellEquipmentInstance> Instance = nullptr;
+
+	UPROPERTY(Transient, NotReplicated)
+	int32 Handle = 1;
 	
 };
 
 USTRUCT(BlueprintType)
-struct FEquipmentStorage : FFastArraySerializer
+struct FEquipmentStorage : public FFastArraySerializer
 {
 	GENERATED_BODY()
 	
 public:
-	FEquipmentStorage(UActorComponent* InOwningComponent)
+	FEquipmentStorage() {}
+	explicit FEquipmentStorage(UActorComponent* InOwningComponent)
 	{
 		OwningComponent = InOwningComponent;
 	}
 	
-protected:
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 	{
-		return FFastArraySerializer::FastArrayDeltaSerialize<FEquipmentEntry, FEquipmentStorage>(EntriesStorage, DeltaParms, *this);
+		return FastArrayDeltaSerialize<FEquipmentEntry, FEquipmentStorage>(EntriesStorage, DeltaParms, *this);
 	}
-
+	
 	void PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize);
 	void PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize);
-
-public:
-	UWellEquipmentInstance* AddEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
+	
+	FEquipmentEntry& AddEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
 	void RemoveEntry(UWellEquipmentInstance* EntryInstance);
 
 private:
@@ -69,15 +77,17 @@ class WELCOMEWELLDONE_API UWellEquipmentComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	UWellEquipmentComponent();
+	UWellEquipmentComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	UFUNCTION(BlueprintCallable, Category=Equip)
 	UWellEquipmentInstance* EquipEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
+	UFUNCTION(BlueprintCallable, Category=Unequip)
 	void UnequipEntry(UWellEquipmentInstance* Instance);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
-protected:
+private:
 	UPROPERTY(Replicated)
 	FEquipmentStorage EquipmentEntries;
 	

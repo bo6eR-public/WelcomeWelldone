@@ -3,25 +3,38 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CommomTypes/WellCommonTypes.h"
 #include "UObject/Object.h"
-#include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
 #include "WellEquipmentProfile.generated.h"
 
 
-UCLASS()
+class UWellGameplayAbility;
+class UWellInputConfigDataAsset;
+class UWellCommonStartUpDataAsset;
+class UWellEquipmentInstance;
+
+UCLASS(Blueprintable)
 class WELCOMEWELLDONE_API UWellEquipmentProfile : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	class UWellEquipmentInstance* GetDefaultInstance() const { return EquipmentInstance.GetDefaultObject(); }
-	[[nodiscard]] UWellCommonStartUpDataAsset* GetApplyingData() const { return ApplyingData; }
+	UWellEquipmentInstance* GetDefaultInstance() const;
+	
+	[[nodiscard]] UWellCommonStartUpDataAsset* GetApplyingAbilityData() const { return ApplyingAbilityData; }
+	[[nodiscard]] UWellInputConfigDataAsset* GetInputConfig() const { return OverridingInputConfig; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Instance, meta=(AllowPrivateAccess="true"))
 	TSubclassOf<UWellEquipmentInstance> EquipmentInstance;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Ability, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UWellCommonStartUpDataAsset> ApplyingData;
+	TObjectPtr<UWellCommonStartUpDataAsset> ApplyingAbilityData;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UWellInputConfigDataAsset> OverridingInputConfig;
+
+private:
+	virtual bool IsSupportedForNetworking() const override { return true; }
 	
 };

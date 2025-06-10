@@ -8,6 +8,8 @@
 #include "WellPlayerCharacter.generated.h"
 
 
+class UWellInputConfigDataAsset;
+
 UCLASS()
 class WELCOMEWELLDONE_API AWellPlayerCharacter : public AWellCharacter
 {
@@ -15,6 +17,7 @@ class WELCOMEWELLDONE_API AWellPlayerCharacter : public AWellCharacter
 
 public:
 	AWellPlayerCharacter(const FObjectInitializer& ObjectInitializer);
+	void OverrideInputSettings(UWellInputConfigDataAsset* ApplyingInputConfig);
 
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -25,9 +28,11 @@ private:
 	void Move(const FInputActionValue& Value); // input handle
 	void Look(const FInputActionValue& Value); // input handle
 
+	class UEnhancedInputLocalPlayerSubsystem* GetInputSubSystem() const;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess="true"))
-	class UWellInputConfigDataAsset* InputConfig = nullptr;
+	TObjectPtr<UWellInputConfigDataAsset> InputConfig = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
 	TObjectPtr<class UCameraComponent> Camera;

@@ -2,3 +2,10 @@
 
 
 #include "Objects/WellEquipmentProfile.h"
+#include "Objects/WellEquipmentInstance.h"
+
+
+UWellEquipmentInstance* UWellEquipmentProfile::GetDefaultInstance() const
+{
+	return EquipmentInstance.GetDefaultObject();
+}
