@@ -21,7 +21,7 @@ bool UWellEquipmentInstance::Initialize(AActor* SourceOwner)
 
 void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfile)
 {
-	static AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(OwningCharacter.Get());
+	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(OwningCharacter.Get());
 	if (PlayerCharacter && PlayerCharacter->HasAuthority())
 	{
 		PlayerCharacter->OverrideInputSettings(OwningProfile->GetInputConfig());
