@@ -8,6 +8,8 @@
 #include "WellEquipmentInstance.generated.h"
 
 
+class UWellEquipmentProfile;
+
 UCLASS(Blueprintable)
 class WELCOMEWELLDONE_API UWellEquipmentInstance : public UObject
 {
@@ -18,11 +20,12 @@ public:
 	virtual bool Initialize(AActor* SourceOwner);
 	virtual UWorld* GetWorld() const override;
 	
-	virtual bool OnEquipped(const class UWellEquipmentProfile* OwningProfile);
-	virtual void OnUneqipped();
+	virtual bool OnEquipped(const UWellEquipmentProfile* OwningProfile);
+	virtual bool OnUneqipped(const UWellEquipmentProfile* OwningProfile);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	void SendEvent_LinkAnimInstance(const TSubclassOf<UAnimInstance>& LinkedInstance);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
@@ -30,7 +33,7 @@ protected:
 
 private:
 	void SpawnEquipmentActor(const FAttachedSpawnInfo& AttachInfo);
-	bool DestroyEquipmentActor() const;
+	void DestroyEquipmentActor() const;
 
 private:
 	UPROPERTY(Replicated)

@@ -15,6 +15,11 @@ void UWellCommonStartUpDataAsset::GiveToAbilitySystemComponent(class UAbilitySys
 	GrantAbilities(OnGivenAbilities, AbilitySystem, ApplyLevel);
 }
 
+void UWellCommonStartUpDataAsset::TakeFromAbilitySystemComponent(UAbilitySystemComponent* AbilitySystemComponent)
+{
+	ClearAbilities(AbilitySets, AbilitySystemComponent);
+}
+
 void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilitySet> Abilities, UAbilitySystemComponent* AbilitySystem, int32 Level)
 {
 	if (Abilities.IsEmpty()) return;
@@ -57,6 +62,25 @@ void UWellCommonStartUpDataAsset::ApplyEffects(TArray<TSubclassOf<UGameplayEffec
 		{
 			UGameplayEffect* EffectCDO = Effect->GetDefaultObject<UGameplayEffect>();
 			AbilitySystem->ApplyGameplayEffectToSelf(EffectCDO, Level, AbilitySystem->MakeEffectContext());
+		}
+	}
+}
+
+void UWellCommonStartUpDataAsset::ClearAbilities(TArray<FAbilitySet> Abilities, UAbilitySystemComponent* AbilitySystem)
+{
+	TArray<FGameplayAbilitySpec> ActiveAbilities = AbilitySystem->GetActivatableAbilities();
+	if (Abilities.IsEmpty() || ActiveAbilities.IsEmpty()) return;
+
+	for (const FAbilitySet& AbilitySet : Abilities)
+	{
+		if (!AbilitySet.IsValid()) continue;
+
+		for (const FGameplayAbilitySpec AbilitySpec : ActiveAbilities)
+		{
+			if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(AbilitySet.Tag))
+			{
+				AbilitySystem->ClearAbility(AbilitySpec.Handle);
+			}
 		}
 	}
 }

@@ -18,6 +18,7 @@ class WELCOMEWELLDONE_API AWellPlayerCharacter : public AWellCharacter
 public:
 	AWellPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 	void OverrideInputSettings(UWellInputConfigDataAsset* ApplyingInputConfig);
+	void ResetInputSettings(UWellInputConfigDataAsset* RemovingInputConfig);
 
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

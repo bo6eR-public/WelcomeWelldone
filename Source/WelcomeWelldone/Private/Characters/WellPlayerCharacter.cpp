@@ -53,6 +53,15 @@ void AWellPlayerCharacter::OverrideInputSettings(UWellInputConfigDataAsset* Appl
 	}
 }
 
+void AWellPlayerCharacter::ResetInputSettings(UWellInputConfigDataAsset* RemovingInputConfig)
+{
+	GetInputSubSystem()->RemoveMappingContext(RemovingInputConfig->MappingContext);
+	if (UWellEnhancedInputComponent* EnhancedInputComponent = Cast<UWellEnhancedInputComponent>(InputComponent))
+	{
+		EnhancedInputComponent->UnBindAbilityInputConfig(RemovingInputConfig);
+	}
+}
+
 void AWellPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -97,12 +106,12 @@ void AWellPlayerCharacter::Look(const FInputActionValue& Value)
 
 UEnhancedInputLocalPlayerSubsystem* AWellPlayerCharacter::GetInputSubSystem() const
 {
-	const ULocalPlayer* LocalPlayer = Cast<APlayerController>(GetController())->GetLocalPlayer();
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = nullptr;
+	const ULocalPlayer* LocalPlayer = Cast<APlayerController>(GetController())->GetLocalPlayer();
 	if (LocalPlayer != nullptr)
 	{
-		Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		checkf(Subsystem, TEXT("For some reason the input subsystem is not valid"));
+			Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	}
+	checkf(Subsystem, TEXT("For some reason the input subsystem is not valid"));
 	return Subsystem;
 }

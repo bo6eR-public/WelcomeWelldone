@@ -35,27 +35,43 @@ bool UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfi
 	if (PlayerCharacter && PlayerCharacter->HasAuthority())
 	{
 		PlayerCharacter->OverrideInputSettings(OwningProfile->GetInputConfig());
-
-		FGameplayEventData Payload;
-		Payload.TargetData = UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(OwningProfile->GetAnimationLayer());
-		Payload.EventTag = WellGameplayTags::Event_LinkLayer;
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PlayerCharacter, WellGameplayTags::Event_LinkLayer, Payload);
-
+		SendEvent_LinkAnimInstance(OwningProfile->GetAnimationLayer());
 		SpawnEquipmentActor(AttachedActorInfo);
 		return true;
 	}
 	return false;
 }
 
-void UWellEquipmentInstance::OnUneqipped()
+bool UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProfile)
 {
-	
+	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(OwningCharacter.Get());
+	if (PlayerCharacter && PlayerCharacter->HasAuthority())
+	{
+		PlayerCharacter->ResetInputSettings(OwningProfile->GetInputConfig());
+		SendEvent_LinkAnimInstance(nullptr); //~ Unlink layer
+		DestroyEquipmentActor();
+		return true;
+	}
+	return false;
 }
 
-void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	UObject::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
 	DOREPLIFETIME(ThisClass, OwningCharacter);
+	DOREPLIFETIME(ThisClass, SpawnedActor);
+}
+
+void UWellEquipmentInstance::SendEvent_LinkAnimInstance(const TSubclassOf<UAnimInstance>& LinkedInstance)
+{
+	FGameplayEventData Payload = FGameplayEventData();
+	if (OwningCharacter.IsValid() && OwningCharacter->HasAuthority() && LinkedInstance)
+	{
+		Payload.TargetData = UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(LinkedInstance);
+		Payload.EventTag = WellGameplayTags::Event_LinkLayer;
+	}
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwningCharacter.Get(), WellGameplayTags::Event_LinkLayer, Payload);
 }
 
 void UWellEquipmentInstance::SpawnEquipmentActor(const FAttachedSpawnInfo& AttachInfo)
@@ -74,12 +90,10 @@ void UWellEquipmentInstance::SpawnEquipmentActor(const FAttachedSpawnInfo& Attac
 	}
 }
 
-bool UWellEquipmentInstance::DestroyEquipmentActor() const
+void UWellEquipmentInstance::DestroyEquipmentActor() const
 {
 	if (SpawnedActor != nullptr)
 	{
 		SpawnedActor->Destroy();
-		return true;
 	}
-	return false;
 }

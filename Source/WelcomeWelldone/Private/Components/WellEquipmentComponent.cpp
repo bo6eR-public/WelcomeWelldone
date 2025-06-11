@@ -46,6 +46,14 @@ void FEquipmentStorage::RemoveEntry(UWellEquipmentInstance* EntryInstance)
 		const auto Instance = It->Instance;
 		if (Instance && Instance == EntryInstance)
 		{
+			UWellEquipmentProfile* EquipmentCDO = It->InstigatorProfile.GetDefaultObject();
+			if (const auto AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningComponent->GetOwner()))
+			{
+				if (const auto StartUpData = EquipmentCDO->GetApplyingAbilityData())
+				{
+					StartUpData->TakeFromAbilitySystemComponent(AbilitySystem);
+				}
+			}
 			It.RemoveCurrent();
 			MarkArrayDirty();
 		}
@@ -59,7 +67,8 @@ void FEquipmentStorage::PreReplicatedRemove(const TArrayView<int32> RemovedIndic
 		FEquipmentEntry& Entry = EntriesStorage[Index];
 		if (Entry.Instance)
 		{
-			Entry.Instance->OnUneqipped();
+			const auto OwningProfile = Entry.InstigatorProfile;
+			Entry.Instance->OnUneqipped(OwningProfile.GetDefaultObject());
 		}
 	}
 }
@@ -128,9 +137,23 @@ void UWellEquipmentComponent::UnequipEntry_ByEquipmentInstance(UWellEquipmentIns
 	{
 		if (Instance != nullptr)
 		{
-			Instance->OnUneqipped();
+			bIsCharacterEquipped = !Instance->OnUneqipped(nullptr); // TODO: not nullptr
 			EquipmentEntries.RemoveEntry(Instance);
 		}
+	}
+}
+
+void UWellEquipmentComponent::UnequipEntry_ByHandle(int32 Handle)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		FEquipmentEntry& Entry = EquipmentEntries[Handle];
+		if (Entry.IsValid() && Entry.Instance->Initialize(GetOwner()))
+		{
+			const auto OwningProfile = Entry.InstigatorProfile;
+			bIsCharacterEquipped = !Entry.Instance->OnUneqipped(OwningProfile.GetDefaultObject());
+		}
+		EquipmentEntries.RemoveEntry(Entry.Instance);
 	}
 }
 

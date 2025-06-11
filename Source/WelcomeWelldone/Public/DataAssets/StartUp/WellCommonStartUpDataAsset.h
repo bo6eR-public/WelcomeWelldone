@@ -14,7 +14,8 @@ class WELCOMEWELLDONE_API UWellCommonStartUpDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	void GiveToAbilitySystemComponent(class UAbilitySystemComponent* AbilitySystem, int32 ApplyLevel = 1);
+	void GiveToAbilitySystemComponent(UAbilitySystemComponent* AbilitySystem, int32 ApplyLevel = 1);
+	void TakeFromAbilitySystemComponent(UAbilitySystemComponent* AbilitySystemComponent);
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Abilities, meta=(AllowPrivateAccess="true"))
@@ -34,4 +35,6 @@ private:
 	void GrantAbilities(TArray<TSubclassOf<UGameplayAbility>>& Abilities, UAbilitySystemComponent* AbilitySystem, int32 Level);
 	
 	void ApplyEffects(TArray<TSubclassOf<UGameplayEffect>> Effects, UAbilitySystemComponent* AbilitySystem, int32 Level);
+
+	void ClearAbilities(TArray<FAbilitySet> Abilities, UAbilitySystemComponent* AbilitySystem);
 };

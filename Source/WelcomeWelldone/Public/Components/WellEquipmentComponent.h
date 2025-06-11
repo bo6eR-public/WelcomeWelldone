@@ -93,6 +93,9 @@ public:
 	
 	void UnequipEntry_ByEquipmentInstance(UWellEquipmentInstance* Instance);
 
+	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Unequip Entry"))
+	void UnequipEntry_ByHandle(int32 Handle);
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
