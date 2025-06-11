@@ -90,8 +90,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Equip Entry"))
 	void EquipEntry_ByHandle(int32 Handle);
-	
-	void UnequipEntry_ByEquipmentInstance(UWellEquipmentInstance* Instance);
 
 	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Unequip Entry"))
 	void UnequipEntry_ByHandle(int32 Handle);

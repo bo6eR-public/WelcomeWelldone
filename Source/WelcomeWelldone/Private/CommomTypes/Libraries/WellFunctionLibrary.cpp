@@ -11,7 +11,7 @@ FGameplayAbilityTargetDataHandle UWellFunctionLibrary::MakeAbilityTargetDataFrom
 	TargetData->AnimInstance = AnimInstance;
 	
 	FGameplayAbilityTargetDataHandle Handle;
-	Handle.Data.Add(TSharedPtr<FGameplayAbilityTargetData>(TargetData));
+	Handle.Data.Add(TSharedPtr<FGameplayAbilityTargetData_AnimInstance>(TargetData));
 	
 	return Handle;
 }

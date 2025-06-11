@@ -131,18 +131,6 @@ void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
 	}
 }
 
-void UWellEquipmentComponent::UnequipEntry_ByEquipmentInstance(UWellEquipmentInstance* Instance)
-{
-	if (GetOwner()->HasAuthority())
-	{
-		if (Instance != nullptr)
-		{
-			bIsCharacterEquipped = !Instance->OnUneqipped(nullptr); // TODO: not nullptr
-			EquipmentEntries.RemoveEntry(Instance);
-		}
-	}
-}
-
 void UWellEquipmentComponent::UnequipEntry_ByHandle(int32 Handle)
 {
 	if (GetOwner()->HasAuthority())

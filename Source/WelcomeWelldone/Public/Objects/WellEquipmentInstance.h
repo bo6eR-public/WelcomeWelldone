@@ -25,7 +25,6 @@ public:
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-	void SendEvent_LinkAnimInstance(const TSubclassOf<UAnimInstance>& LinkedInstance);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
@@ -41,4 +40,7 @@ private:
 
 	UPROPERTY(Replicated)
 	TObjectPtr<AActor> SpawnedActor = nullptr;
+
+protected:
+	virtual bool IsSupportedForNetworking() const override { return true; }
 };

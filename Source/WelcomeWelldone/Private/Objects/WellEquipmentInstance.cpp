@@ -5,8 +5,6 @@
 #include "Characters/WellPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "Objects/WellEquipmentProfile.h"
-#include "AbilitySystemBlueprintLibrary.h"
-#include "CommomTypes/WellGameplayTags.h"
 #include "CommomTypes/Libraries/WellFunctionLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellEquipmentInstance)
@@ -34,9 +32,13 @@ bool UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfi
 	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(OwningCharacter.Get());
 	if (PlayerCharacter && PlayerCharacter->HasAuthority())
 	{
-		PlayerCharacter->OverrideInputSettings(OwningProfile->GetInputConfig());
-		SendEvent_LinkAnimInstance(OwningProfile->GetAnimationLayer());
+		PlayerCharacter->Multicast_SendEvent_LinkAnimInstance(OwningProfile->GetAnimationLayer());
 		SpawnEquipmentActor(AttachedActorInfo);
+		return true;
+	}
+	if (PlayerCharacter->IsLocallyControlled())
+	{
+		PlayerCharacter->OverrideInputSettings(OwningProfile->GetInputConfig());
 		return true;
 	}
 	return false;
@@ -47,9 +49,13 @@ bool UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProf
 	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(OwningCharacter.Get());
 	if (PlayerCharacter && PlayerCharacter->HasAuthority())
 	{
-		PlayerCharacter->ResetInputSettings(OwningProfile->GetInputConfig());
-		SendEvent_LinkAnimInstance(nullptr); //~ Unlink layer
+		PlayerCharacter->Multicast_SendEvent_LinkAnimInstance(nullptr); //~ Unlink layer
 		DestroyEquipmentActor();
+		return true;
+	}
+	if (PlayerCharacter->IsLocallyControlled())
+	{
+		PlayerCharacter->ResetInputSettings(OwningProfile->GetInputConfig());
 		return true;
 	}
 	return false;
@@ -61,17 +67,6 @@ void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	
 	DOREPLIFETIME(ThisClass, OwningCharacter);
 	DOREPLIFETIME(ThisClass, SpawnedActor);
-}
-
-void UWellEquipmentInstance::SendEvent_LinkAnimInstance(const TSubclassOf<UAnimInstance>& LinkedInstance)
-{
-	FGameplayEventData Payload = FGameplayEventData();
-	if (OwningCharacter.IsValid() && OwningCharacter->HasAuthority() && LinkedInstance)
-	{
-		Payload.TargetData = UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(LinkedInstance);
-		Payload.EventTag = WellGameplayTags::Event_LinkLayer;
-	}
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwningCharacter.Get(), WellGameplayTags::Event_LinkLayer, Payload);
 }
 
 void UWellEquipmentInstance::SpawnEquipmentActor(const FAttachedSpawnInfo& AttachInfo)

@@ -6,8 +6,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "CommomTypes/WellGameplayTags.h"
+#include "CommomTypes/Libraries/WellFunctionLibrary.h"
 #include "Components/WellEnhancedInputComponent.h"
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerCharacter)
 
@@ -46,7 +48,6 @@ void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void AWellPlayerCharacter::OverrideInputSettings(UWellInputConfigDataAsset* ApplyingInputConfig)
 {
 	GetInputSubSystem()->AddMappingContext(ApplyingInputConfig->MappingContext, 1);
-
 	if (UWellEnhancedInputComponent* EnhancedInputComponent = Cast<UWellEnhancedInputComponent>(InputComponent))
 	{
 		EnhancedInputComponent->BindAbilityInputConfig(ApplyingInputConfig, this, &ThisClass::AbilityInputPressed, &ThisClass::AbilityInputReleased);
@@ -60,6 +61,17 @@ void AWellPlayerCharacter::ResetInputSettings(UWellInputConfigDataAsset* Removin
 	{
 		EnhancedInputComponent->UnBindAbilityInputConfig(RemovingInputConfig);
 	}
+}
+
+void AWellPlayerCharacter::Multicast_SendEvent_LinkAnimInstance_Implementation(TSubclassOf<UAnimInstance> LinkedInstance)
+{
+	FGameplayEventData Payload = FGameplayEventData();
+	if (LinkedInstance != nullptr)
+	{
+		Payload.TargetData = UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(LinkedInstance);
+		Payload.EventTag = WellGameplayTags::Event_LinkLayer;
+	}
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_LinkLayer, Payload);
 }
 
 void AWellPlayerCharacter::PossessedBy(AController* NewController)
@@ -107,10 +119,15 @@ void AWellPlayerCharacter::Look(const FInputActionValue& Value)
 UEnhancedInputLocalPlayerSubsystem* AWellPlayerCharacter::GetInputSubSystem() const
 {
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = nullptr;
-	const ULocalPlayer* LocalPlayer = Cast<APlayerController>(GetController())->GetLocalPlayer();
-	if (LocalPlayer != nullptr)
+
+	const AController* LocalController = GetController();
+	if (LocalController && LocalController->IsLocalController())
 	{
+		const ULocalPlayer* LocalPlayer = Cast<APlayerController>(LocalController)->GetLocalPlayer();
+		if (LocalPlayer != nullptr)
+		{
 			Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+		}
 	}
 	checkf(Subsystem, TEXT("For some reason the input subsystem is not valid"));
 	return Subsystem;

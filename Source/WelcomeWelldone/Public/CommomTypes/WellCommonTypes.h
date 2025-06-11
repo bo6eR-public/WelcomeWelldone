@@ -66,5 +66,20 @@ struct FGameplayAbilityTargetData_AnimInstance : public FGameplayAbilityTargetDa
 
 	UPROPERTY()
 	TSubclassOf<UAnimInstance> AnimInstance = nullptr;
-	
+
+	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+
+	virtual UScriptStruct* GetScriptStruct() const override
+	{
+		return FGameplayAbilityTargetData_AnimInstance::StaticStruct();
+	}
+};
+
+template<>
+struct TStructOpsTypeTraits<FGameplayAbilityTargetData_AnimInstance> : public TStructOpsTypeTraitsBase2<FGameplayAbilityTargetData_AnimInstance>
+{
+	enum
+	{
+		WithNetSerializer = true	// For now this is REQUIRED for FGameplayAbilityTargetDataHandle net serialization to work
+	};
 };
