@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "CommomTypes/WellGameplayTags.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellGameplayAbility_Run)
 
 void UWellGameplayAbility_Run::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {

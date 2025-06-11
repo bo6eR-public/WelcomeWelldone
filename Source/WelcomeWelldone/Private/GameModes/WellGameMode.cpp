@@ -2,3 +2,5 @@
 
 
 #include "WelcomeWelldone/Public/GameModes/WellGameMode.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellGameMode)

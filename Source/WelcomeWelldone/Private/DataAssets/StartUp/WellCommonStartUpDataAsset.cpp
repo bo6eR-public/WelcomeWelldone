@@ -4,6 +4,7 @@
 #include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
 #include "AbilitySystemComponent.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellCommonStartUpDataAsset)
 
 void UWellCommonStartUpDataAsset::GiveToAbilitySystemComponent(class UAbilitySystemComponent* AbilitySystem, int32 ApplyLevel)
 {

@@ -3,6 +3,7 @@
 
 #include "CommomTypes/Libraries/WellFunctionLibrary.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellFunctionLibrary)
 
 FGameplayAbilityTargetDataHandle UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(const TSubclassOf<UAnimInstance>& AnimInstance)
 {

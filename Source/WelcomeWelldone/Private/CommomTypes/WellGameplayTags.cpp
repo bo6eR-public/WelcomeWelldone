@@ -3,7 +3,6 @@
 
 #include "CommomTypes/WellGameplayTags.h"
 
-
 namespace WellGameplayTags
 {
 	/** Input Tags **/

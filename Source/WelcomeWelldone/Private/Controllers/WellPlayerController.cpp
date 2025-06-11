@@ -5,6 +5,7 @@
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 #include "Characters/WellCharacter.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerController)
 
 void AWellPlayerController::ProcessPlayerInput(const float DeltaTime, const bool bGamePaused)
 {

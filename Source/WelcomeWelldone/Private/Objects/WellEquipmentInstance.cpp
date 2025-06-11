@@ -9,6 +9,7 @@
 #include "CommomTypes/WellGameplayTags.h"
 #include "CommomTypes/Libraries/WellFunctionLibrary.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellEquipmentInstance)
 
 bool UWellEquipmentInstance::Initialize(AActor* SourceOwner)
 {
@@ -19,7 +20,16 @@ bool UWellEquipmentInstance::Initialize(AActor* SourceOwner)
 	return OwningCharacter.IsValid();
 }
 
-void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfile)
+UWorld* UWellEquipmentInstance::GetWorld() const
+{
+	if (const APawn* OwningPawn = OwningCharacter.Get())
+	{
+		return OwningPawn->GetWorld();
+	}
+	return UObject::GetWorld();
+}
+
+bool UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfile)
 {
 	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(OwningCharacter.Get());
 	if (PlayerCharacter && PlayerCharacter->HasAuthority())
@@ -29,9 +39,12 @@ void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfi
 		FGameplayEventData Payload;
 		Payload.TargetData = UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(OwningProfile->GetAnimationLayer());
 		Payload.EventTag = WellGameplayTags::Event_LinkLayer;
-		
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PlayerCharacter, WellGameplayTags::Event_LinkLayer, Payload);
+
+		SpawnEquipmentActor(AttachedActorInfo);
+		return true;
 	}
+	return false;
 }
 
 void UWellEquipmentInstance::OnUneqipped()
@@ -43,4 +56,30 @@ void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 {
 	UObject::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ThisClass, OwningCharacter);
+}
+
+void UWellEquipmentInstance::SpawnEquipmentActor(const FAttachedSpawnInfo& AttachInfo)
+{
+	if (ACharacter* Character = OwningCharacter.Get())
+	{
+		if (USceneComponent* AttachComponent = Character->GetMesh())
+		{
+			SpawnedActor = GetWorld()->SpawnActorDeferred<AActor>(AttachInfo.Actor, FTransform::Identity, Character);
+			SpawnedActor->FinishSpawning(FTransform::Identity, true);
+			SpawnedActor->SetActorRelativeTransform(AttachInfo.Transform);
+
+			FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::KeepRelativeTransform;
+			SpawnedActor->AttachToComponent(AttachComponent, AttachmentRules, AttachInfo.AttachedSocketName);
+		}
+	}
+}
+
+bool UWellEquipmentInstance::DestroyEquipmentActor() const
+{
+	if (SpawnedActor != nullptr)
+	{
+		SpawnedActor->Destroy();
+		return true;
+	}
+	return false;
 }

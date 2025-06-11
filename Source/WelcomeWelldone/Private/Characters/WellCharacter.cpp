@@ -11,6 +11,7 @@
 #include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellCharacter)
 
 AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UWellCharacterMovementComponent>(CharacterMovementComponentName))

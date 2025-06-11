@@ -41,6 +41,7 @@ public:
 	explicit FEquipmentStorage(UActorComponent* InOwningComponent)
 	{
 		OwningComponent = InOwningComponent;
+		EntriesStorage.Reserve(2);
 	}
 	
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
@@ -53,6 +54,11 @@ public:
 	
 	FEquipmentEntry& AddEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
 	void RemoveEntry(UWellEquipmentInstance* EntryInstance);
+
+	FEquipmentEntry& operator[](int32 Index)
+	{
+		return EntriesStorage[Index];
+	}
 
 private:
 	UPROPERTY()
@@ -79,10 +85,13 @@ class WELCOMEWELLDONE_API UWellEquipmentComponent : public UActorComponent
 public:
 	UWellEquipmentComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	UFUNCTION(BlueprintCallable, Category=Equip)
-	UWellEquipmentInstance* EquipEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
-	UFUNCTION(BlueprintCallable, Category=Unequip)
-	void UnequipEntry(UWellEquipmentInstance* Instance);
+	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Equip Entry"))
+	UWellEquipmentInstance* EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
+
+	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Equip Entry"))
+	void EquipEntry_ByHandle(int32 Handle);
+	
+	void UnequipEntry_ByEquipmentInstance(UWellEquipmentInstance* Instance);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -90,5 +99,8 @@ protected:
 private:
 	UPROPERTY(Replicated)
 	FEquipmentStorage EquipmentEntries;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+    bool bIsCharacterEquipped = false;
 	
 };

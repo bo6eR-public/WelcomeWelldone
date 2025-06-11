@@ -9,6 +9,7 @@
 #include "Components/WellEnhancedInputComponent.h"
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerCharacter)
 
 AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {

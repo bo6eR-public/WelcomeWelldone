@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Objects/WellEquipmentInstance.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(WellEquipmentComponent)
 
 /////////////////////////~ Equipment Fast Serializer Array And Item ~////////////////////////
 
@@ -91,7 +92,7 @@ UWellEquipmentComponent::UWellEquipmentComponent(const FObjectInitializer& Objec
 	SetIsReplicatedByDefault(true);
 }
 
-UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
+UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
 {
 	checkf(EquipmentProfile, TEXT("Equipment profile is not valid!"));
 	if (GetOwner()->HasAuthority())
@@ -100,7 +101,7 @@ UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry(const TSubclassOf<UW
 		if (ResultEntry.IsValid() && ResultEntry.Instance->Initialize(GetOwner()))
 		{
 			const auto OwningProfile = ResultEntry.InstigatorProfile;
-			ResultEntry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
+			bIsCharacterEquipped = ResultEntry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
 			
 			return ResultEntry.Instance;
 		}
@@ -108,7 +109,20 @@ UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry(const TSubclassOf<UW
 	return nullptr;
 }
 
-void UWellEquipmentComponent::UnequipEntry(UWellEquipmentInstance* Instance)
+void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		FEquipmentEntry& Entry = EquipmentEntries[Handle];
+		if (Entry.IsValid() && Entry.Instance->Initialize(GetOwner()))
+		{
+			const auto OwningProfile = Entry.InstigatorProfile;
+			bIsCharacterEquipped = Entry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
+		}
+	}
+}
+
+void UWellEquipmentComponent::UnequipEntry_ByEquipmentInstance(UWellEquipmentInstance* Instance)
 {
 	if (GetOwner()->HasAuthority())
 	{
