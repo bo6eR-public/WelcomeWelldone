@@ -6,7 +6,3 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellEquipmentProfile)
 
-UWellEquipmentInstance* UWellEquipmentProfile::GetDefaultInstance() const
-{
-	return EquipmentInstance.GetDefaultObject();
-}

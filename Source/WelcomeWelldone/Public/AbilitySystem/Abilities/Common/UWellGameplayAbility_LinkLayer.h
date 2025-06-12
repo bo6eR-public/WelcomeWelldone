@@ -12,6 +12,9 @@ class WELCOMEWELLDONE_API UWellGameplayAbility_LinkLayer : public UWellGameplayA
 {
 	GENERATED_BODY()
 
+public:
+	UWellGameplayAbility_LinkLayer();
+
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category=ActorInfo)
 	UAnimInstance* GetAnimInstanceFromActorInfo() const;

@@ -18,16 +18,14 @@ class WELCOMEWELLDONE_API UWellEquipmentProfile : public UObject
 	GENERATED_BODY()
 
 public:
-	UWellEquipmentInstance* GetDefaultInstance() const;
-	
 	FORCEINLINE [[nodiscard]] UWellCommonStartUpDataAsset* GetApplyingAbilityData() const { return ApplyingAbilityData; }
 	FORCEINLINE [[nodiscard]] UWellInputConfigDataAsset* GetInputConfig() const { return OverridingInputConfig; }
 	FORCEINLINE [[nodiscard]] TSubclassOf<UAnimInstance> GetAnimationLayer() const { return AnimationLayer; }
-
-private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Instance, meta=(AllowPrivateAccess="true"))
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Instance)
 	TSubclassOf<UWellEquipmentInstance> EquipmentInstance;
-
+	
+private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Ability, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UWellCommonStartUpDataAsset> ApplyingAbilityData;
 

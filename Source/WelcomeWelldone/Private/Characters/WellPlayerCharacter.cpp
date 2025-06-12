@@ -6,7 +6,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "CommomTypes/WellGameplayTags.h"
-#include "CommomTypes/Libraries/WellFunctionLibrary.h"
 #include "Components/WellEnhancedInputComponent.h"
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -24,6 +23,8 @@ AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectIniti
 		FVector(0.5f, 0.5f, 0.5f)
 	));
 	Camera->bUsePawnControlRotation = true;
+
+	GetMesh()->SetIsReplicated(true);
 }
 
 void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -61,17 +62,6 @@ void AWellPlayerCharacter::ResetInputSettings(UWellInputConfigDataAsset* Removin
 	{
 		EnhancedInputComponent->UnBindAbilityInputConfig(RemovingInputConfig);
 	}
-}
-
-void AWellPlayerCharacter::Multicast_SendEvent_LinkAnimInstance_Implementation(TSubclassOf<UAnimInstance> LinkedInstance)
-{
-	FGameplayEventData Payload = FGameplayEventData();
-	if (LinkedInstance != nullptr)
-	{
-		Payload.TargetData = UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(LinkedInstance);
-		Payload.EventTag = WellGameplayTags::Event_LinkLayer;
-	}
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_LinkLayer, Payload);
 }
 
 void AWellPlayerCharacter::PossessedBy(AController* NewController)

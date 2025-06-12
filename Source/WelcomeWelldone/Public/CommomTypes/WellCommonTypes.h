@@ -71,7 +71,7 @@ struct FGameplayAbilityTargetData_AnimInstance : public FGameplayAbilityTargetDa
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FGameplayAbilityTargetData_AnimInstance::StaticStruct();
+		return FGameplayAbilityTargetData_AnimInstance::StaticStruct(); // Neccesary for NetSerialize(...)
 	}
 };
 

@@ -5,6 +5,7 @@
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 #include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
+#include "Engine/ActorChannel.h"
 #include "Objects/WellEquipmentProfile.h"
 #include "Net/UnrealNetwork.h"
 #include "Objects/WellEquipmentInstance.h"
@@ -15,15 +16,18 @@
 
 FEquipmentEntry& FEquipmentStorage::AddEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
 {
-	UWellEquipmentProfile* EquipmentCDO = EquipmentProfile.GetDefaultObject();
 	static FEquipmentEntry EmptyEntry(-1);
+	check(OwningComponent);
+	check(OwningComponent->GetOwner()->HasAuthority())
+	
+	UWellEquipmentProfile* EquipmentCDO = EquipmentProfile.GetDefaultObject();
 	if (EquipmentCDO == nullptr)
 		return EmptyEntry;
 
-	if (const auto ExtractedInstance = EquipmentCDO->GetDefaultInstance())
+	if (const auto ExtractedInstance = EquipmentCDO->EquipmentInstance)
 	{
 		FEquipmentEntry& Entry = EntriesStorage.AddDefaulted_GetRef();
-		Entry.Instance = ExtractedInstance;
+		Entry.Instance = NewObject<UWellEquipmentInstance>(OwningComponent->GetOwner(), ExtractedInstance);
 		Entry.InstigatorProfile = EquipmentProfile;
 		
 		if (const auto AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningComponent->GetOwner()))
@@ -41,6 +45,9 @@ FEquipmentEntry& FEquipmentStorage::AddEntry(const TSubclassOf<UWellEquipmentPro
 
 void FEquipmentStorage::RemoveEntry(UWellEquipmentInstance* EntryInstance)
 {
+	check(OwningComponent);
+	check(OwningComponent->GetOwner()->HasAuthority());
+	
 	for (auto It = EntriesStorage.CreateIterator(); It; ++It)
 	{
 		const auto Instance = It->Instance;
@@ -104,30 +111,36 @@ UWellEquipmentComponent::UWellEquipmentComponent(const FObjectInitializer& Objec
 UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
 {
 	checkf(EquipmentProfile, TEXT("Equipment profile is not valid!"));
-	if (GetOwner()->HasAuthority())
+
+	FEquipmentEntry& ResultEntry = EquipmentEntries.AddEntry(EquipmentProfile);
+	if (ResultEntry.IsValid() && ResultEntry.Instance->Initialize(GetOwner()))
 	{
-		FEquipmentEntry& ResultEntry = EquipmentEntries.AddEntry(EquipmentProfile);
-		if (ResultEntry.IsValid() && ResultEntry.Instance->Initialize(GetOwner()))
+		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
 		{
-			const auto OwningProfile = ResultEntry.InstigatorProfile;
-			bIsCharacterEquipped = ResultEntry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
-			
-			return ResultEntry.Instance;
+			AddReplicatedSubObject(ResultEntry.Instance);
 		}
+		const auto OwningProfile = ResultEntry.InstigatorProfile;
+		ResultEntry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
+			
+		bIsCharacterEquipped = true;
+		return ResultEntry.Instance;
 	}
+	
 	return nullptr;
 }
 
 void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
 {
-	if (GetOwner()->HasAuthority())
+	FEquipmentEntry& Entry = EquipmentEntries[Handle];
+	if (Entry.IsValid() && Entry.Instance->Initialize(GetOwner()))
 	{
-		FEquipmentEntry& Entry = EquipmentEntries[Handle];
-		if (Entry.IsValid() && Entry.Instance->Initialize(GetOwner()))
+		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
 		{
-			const auto OwningProfile = Entry.InstigatorProfile;
-			bIsCharacterEquipped = Entry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
+			AddReplicatedSubObject(Entry.Instance);
 		}
+		const auto OwningProfile = Entry.InstigatorProfile;
+		Entry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
+		bIsCharacterEquipped = true;
 	}
 }
 
@@ -148,5 +161,38 @@ void UWellEquipmentComponent::UnequipEntry_ByHandle(int32 Handle)
 void UWellEquipmentComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
 	DOREPLIFETIME(ThisClass, EquipmentEntries);
+	DOREPLIFETIME(ThisClass, bIsCharacterEquipped);
+}
+
+bool UWellEquipmentComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	for (FEquipmentEntry& Entry : EquipmentEntries.EntriesStorage)
+	{
+		UWellEquipmentInstance* Instance = Entry.Instance;
+		if (IsValid(Instance))
+		{
+			bWroteSomething |= Channel->ReplicateSubobject(Instance, *Bunch, *RepFlags);
+		}
+	}
+	return bWroteSomething;
+}
+
+void UWellEquipmentComponent::ReadyForReplication()
+{
+	Super::ReadyForReplication();
+	if (IsUsingRegisteredSubObjectList())
+	{
+		for (const FEquipmentEntry& Entry : EquipmentEntries.EntriesStorage)
+		{
+			UWellEquipmentInstance* Instance = Entry.Instance;
+
+			if (IsValid(Instance))
+			{
+				AddReplicatedSubObject(Instance);
+			}
+		}
+	}
 }

@@ -16,12 +16,17 @@ class WELCOMEWELLDONE_API UWellEquipmentInstance : public UObject
 	GENERATED_BODY()
 
 public:
+	UWellEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	
 	/* Should call from equipment component every time */
 	virtual bool Initialize(AActor* SourceOwner);
 	virtual UWorld* GetWorld() const override;
 	
-	virtual bool OnEquipped(const UWellEquipmentProfile* OwningProfile);
-	virtual bool OnUneqipped(const UWellEquipmentProfile* OwningProfile);
+	virtual void OnEquipped(const UWellEquipmentProfile* OwningProfile);
+	virtual void OnUneqipped(const UWellEquipmentProfile* OwningProfile);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName="Link Anim Layers")
+	void LinkAnimLayers(TSubclassOf<UAnimInstance> LinkedInstance);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -35,7 +40,7 @@ private:
 	void DestroyEquipmentActor() const;
 
 private:
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TWeakObjectPtr<ACharacter> OwningCharacter;
 
 	UPROPERTY(Replicated)

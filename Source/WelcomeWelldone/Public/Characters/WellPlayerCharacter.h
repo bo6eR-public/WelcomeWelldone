@@ -20,9 +20,6 @@ public:
 	void OverrideInputSettings(UWellInputConfigDataAsset* ApplyingInputConfig);
 	void ResetInputSettings(UWellInputConfigDataAsset* RemovingInputConfig);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_SendEvent_LinkAnimInstance(TSubclassOf<UAnimInstance> LinkedInstance);
-
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	

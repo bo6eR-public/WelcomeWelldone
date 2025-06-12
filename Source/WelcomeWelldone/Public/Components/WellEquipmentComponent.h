@@ -60,10 +60,11 @@ public:
 		return EntriesStorage[Index];
 	}
 
-private:
+public:
 	UPROPERTY()
 	TArray<FEquipmentEntry> EntriesStorage;
-
+	
+private:
 	UPROPERTY()
 	TObjectPtr<UActorComponent> OwningComponent = nullptr;
 	
@@ -85,17 +86,19 @@ class WELCOMEWELLDONE_API UWellEquipmentComponent : public UActorComponent
 public:
 	UWellEquipmentComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Equip Entry"))
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Equip Entry"))
 	UWellEquipmentInstance* EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
 
-	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Equip Entry"))
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Equip Entry"))
 	void EquipEntry_ByHandle(int32 Handle);
 
-	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Unequip Entry"))
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Unequip Entry"))
 	void UnequipEntry_ByHandle(int32 Handle);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+	virtual void ReadyForReplication() override;
 
 private:
 	UPROPERTY(Replicated)

@@ -9,6 +9,8 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellEquipmentInstance)
 
+UWellEquipmentInstance::UWellEquipmentInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) { }
+
 bool UWellEquipmentInstance::Initialize(AActor* SourceOwner)
 {
 	if (SourceOwner && SourceOwner->HasAuthority())
@@ -27,38 +29,26 @@ UWorld* UWellEquipmentInstance::GetWorld() const
 	return UObject::GetWorld();
 }
 
-bool UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfile)
+void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfile)
 {
 	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(OwningCharacter.Get());
-	if (PlayerCharacter && PlayerCharacter->HasAuthority())
-	{
-		PlayerCharacter->Multicast_SendEvent_LinkAnimInstance(OwningProfile->GetAnimationLayer());
-		SpawnEquipmentActor(AttachedActorInfo);
-		return true;
-	}
 	if (PlayerCharacter->IsLocallyControlled())
 	{
 		PlayerCharacter->OverrideInputSettings(OwningProfile->GetInputConfig());
-		return true;
 	}
-	return false;
+	LinkAnimLayers(OwningProfile->GetAnimationLayer());
+	SpawnEquipmentActor(AttachedActorInfo);
 }
 
-bool UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProfile)
+void UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProfile)
 {
 	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(OwningCharacter.Get());
-	if (PlayerCharacter && PlayerCharacter->HasAuthority())
-	{
-		PlayerCharacter->Multicast_SendEvent_LinkAnimInstance(nullptr); //~ Unlink layer
-		DestroyEquipmentActor();
-		return true;
-	}
 	if (PlayerCharacter->IsLocallyControlled())
 	{
 		PlayerCharacter->ResetInputSettings(OwningProfile->GetInputConfig());
-		return true;
 	}
-	return false;
+	LinkAnimLayers(nullptr); //~ Unlink layer
+	DestroyEquipmentActor();
 }
 
 void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
