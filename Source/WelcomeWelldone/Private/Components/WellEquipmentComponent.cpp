@@ -2,13 +2,10 @@
 
 
 #include "Components/WellEquipmentComponent.h"
-#include "AbilitySystemGlobals.h"
-#include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
-#include "DataAssets/StartUp/WellCommonStartUpDataAsset.h"
 #include "Engine/ActorChannel.h"
-#include "Objects/WellEquipmentProfile.h"
+#include "Objects/Equipment/Profiles/WellEquipmentProfile.h"
+#include "Objects/Equipment/Instances/WellEquipmentInstance.h"
 #include "Net/UnrealNetwork.h"
-#include "Objects/WellEquipmentInstance.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellEquipmentComponent)
 
@@ -27,16 +24,9 @@ FEquipmentEntry& FEquipmentStorage::AddEntry(const TSubclassOf<UWellEquipmentPro
 	if (const auto ExtractedInstance = EquipmentCDO->EquipmentInstance)
 	{
 		FEquipmentEntry& Entry = EntriesStorage.AddDefaulted_GetRef();
-		Entry.Instance = NewObject<UWellEquipmentInstance>(OwningComponent->GetOwner(), ExtractedInstance);
 		Entry.InstigatorProfile = EquipmentProfile;
+		Entry.Instance = NewObject<UWellEquipmentInstance>(OwningComponent->GetOwner(), ExtractedInstance);
 		
-		if (const auto AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningComponent->GetOwner()))
-		{
-			if (const auto StartUpData = EquipmentCDO->GetApplyingAbilityData())
-			{
-				StartUpData->GiveToAbilitySystemComponent(AbilitySystem);
-			}
-		}
 		MarkItemDirty(Entry);
 		return Entry;
 	}
@@ -53,14 +43,6 @@ void FEquipmentStorage::RemoveEntry(UWellEquipmentInstance* EntryInstance)
 		FEquipmentEntry& Entry = *It;
 		if (Entry.IsValid() && Entry.Instance == EntryInstance)
 		{
-			UWellEquipmentProfile* EquipmentCDO = Entry.InstigatorProfile.GetDefaultObject();
-			if (const auto AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningComponent->GetOwner()))
-			{
-				if (const auto StartUpData = EquipmentCDO->GetApplyingAbilityData())
-				{
-					StartUpData->TakeFromAbilitySystemComponent(AbilitySystem);
-				}
-			}
 			It.RemoveCurrent();
 			MarkArrayDirty();
 		}
@@ -88,10 +70,7 @@ void FEquipmentStorage::PostReplicatedAdd(const TArrayView<int32> AddedIndices, 
 		if (Entry.IsValid())
 		{
 			const auto OwningProfile = Entry.InstigatorProfile;
-			if (Entry.Instance->Initialize(OwningComponent->GetOwner()))
-			{
-				Entry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
-			}
+			Entry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
 		}
 	}
 }
@@ -112,7 +91,7 @@ UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(c
 {
 	FEquipmentEntry& ResultEntry = EquipmentEntries.AddEntry(EquipmentProfile);
 	
-	if (ResultEntry.IsValid() && ResultEntry.Instance->Initialize(GetOwner()))
+	if (ResultEntry.IsValid())
 	{
 		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
 		{
@@ -131,7 +110,7 @@ UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(c
 void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
 {
 	FEquipmentEntry& Entry = EquipmentEntries[Handle];
-	if (Entry.IsValid() && Entry.Instance->Initialize(GetOwner()))
+	if (Entry.IsValid())
 	{
 		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
 		{
@@ -139,6 +118,7 @@ void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
 		}
 		const auto OwningProfile = Entry.InstigatorProfile;
 		Entry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
+		
 		bIsCharacterEquipped = true;
 	}
 }
@@ -146,7 +126,7 @@ void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
 void UWellEquipmentComponent::UnequipEntry_ByHandle(int32 Handle)
 {
 	FEquipmentEntry& Entry = EquipmentEntries[Handle];
-	if (Entry.IsValid() && Entry.Instance->Initialize(GetOwner()))
+	if (Entry.IsValid())
 	{
 		if (IsUsingRegisteredSubObjectList())
 		{

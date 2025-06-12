@@ -6,13 +6,12 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellCommonStartUpDataAsset)
 
-void UWellCommonStartUpDataAsset::GiveToAbilitySystemComponent(class UAbilitySystemComponent* AbilitySystem, int32 ApplyLevel)
+void UWellCommonStartUpDataAsset::GiveToAbilitySystemComponent(UAbilitySystemComponent* AbilitySystem, UObject* SourceObject, int32 ApplyLevel)
 {
-	GrantAbilities(AbilitySets, AbilitySystem, ApplyLevel);
+	GrantAbilities(AbilitySets, AbilitySystem, SourceObject, ApplyLevel);
 	ApplyEffects(DefaultEffects, AbilitySystem, ApplyLevel);
 	
-	GrantAbilities(TriggeredAbilities, AbilitySystem, ApplyLevel);
-	GrantAbilities(OnGivenAbilities, AbilitySystem, ApplyLevel);
+	GrantAbilities(OnGivenAbilities, AbilitySystem, SourceObject, ApplyLevel);
 }
 
 void UWellCommonStartUpDataAsset::TakeFromAbilitySystemComponent(UAbilitySystemComponent* AbilitySystemComponent)
@@ -20,7 +19,7 @@ void UWellCommonStartUpDataAsset::TakeFromAbilitySystemComponent(UAbilitySystemC
 	ClearAbilities(AbilitySets, AbilitySystemComponent);
 }
 
-void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilitySet> Abilities, UAbilitySystemComponent* AbilitySystem, int32 Level)
+void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilitySet> Abilities, UAbilitySystemComponent* AbilitySystem, UObject* SourceObject, int32 Level)
 {
 	if (Abilities.IsEmpty()) return;
 	for (const FAbilitySet& AbilitySet : Abilities)
@@ -28,7 +27,7 @@ void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilitySet> Abilities, 
 		if (AbilitySet.IsValid())
 		{
 			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilitySet.Ability);
-			AbilitySpec.SourceObject = AbilitySystem->GetAvatarActor();
+			AbilitySpec.SourceObject = SourceObject;
 			AbilitySpec.Level = Level;
 			AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.Tag);
 			
@@ -37,7 +36,7 @@ void UWellCommonStartUpDataAsset::GrantAbilities(TArray<FAbilitySet> Abilities, 
 	}
 }
 
-void UWellCommonStartUpDataAsset::GrantAbilities(TArray<TSubclassOf<UGameplayAbility>>& Abilities, UAbilitySystemComponent* AbilitySystem, int32 Level)
+void UWellCommonStartUpDataAsset::GrantAbilities(TArray<TSubclassOf<UGameplayAbility>>& Abilities, UAbilitySystemComponent* AbilitySystem, UObject* SourceObject, int32 Level)
 {
 	if (Abilities.IsEmpty()) return;
 	for (const auto Ability : Abilities)
@@ -45,9 +44,9 @@ void UWellCommonStartUpDataAsset::GrantAbilities(TArray<TSubclassOf<UGameplayAbi
 		if (Ability != nullptr)
 		{
 			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability);
-			AbilitySpec.SourceObject = AbilitySystem->GetAvatarActor();
+			AbilitySpec.SourceObject = SourceObject ? SourceObject : AbilitySystem->GetAvatarActor();
 			AbilitySpec.Level = Level;
-			
+
 			AbilitySystem->GiveAbility(AbilitySpec);
 		}
 	}

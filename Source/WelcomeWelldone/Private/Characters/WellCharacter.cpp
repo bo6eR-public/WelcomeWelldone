@@ -68,7 +68,7 @@ void AWellCharacter::PossessedBy(AController* NewController)
 		{
 			if (UWellCommonStartUpDataAsset* LoadedStartUpData = CastChecked<UWellCommonStartUpDataAsset>(LoadedData, ECastCheckedType::NullAllowed))
 			{
-				LoadedStartUpData->GiveToAbilitySystemComponent(AbilitySystemComponent);
+				LoadedStartUpData->GiveToAbilitySystemComponent(AbilitySystemComponent, this);
 			}
 		}
 	}

@@ -17,35 +17,39 @@ class WELCOMEWELLDONE_API UWellEquipmentInstance : public UObject
 
 public:
 	UWellEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
-	/* Should call from equipment component every time */
-	virtual bool Initialize(AActor* SourceOwner);
+
 	virtual UWorld* GetWorld() const override;
+	AActor* GetOwner() const;
+
+	UFUNCTION(BlueprintPure)
+	ACharacter* GetOwnerAsCharacter() const;
 	
 	virtual void OnEquipped(const UWellEquipmentProfile* OwningProfile);
 	virtual void OnUneqipped(const UWellEquipmentProfile* OwningProfile);
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName="Link Anim Layers")
-	void LinkAnimLayers(TSubclassOf<UAnimInstance> LinkedInstance);
+	void BP_LinkAnimLayers(TSubclassOf<UAnimInstance> LinkedInstance);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void SpawnEquipmentActor(const FAttachedSpawnInfo& AttachInfo);
+	void DestroyEquipmentActor() const;
+
+	void GiveEquipmentAbilities();
+	void ClearEquipmentAbilities() const;
+
+	virtual bool IsSupportedForNetworking() const override { return true; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FAttachedSpawnInfo AttachedActorInfo;
 
-private:
-	void SpawnEquipmentActor(const FAttachedSpawnInfo& AttachInfo);
-	void DestroyEquipmentActor() const;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Ability, meta=(AllowPrivateAccess="true"))
+	TArray<FAbilitySet> Abilities;
 
 private:
-	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	TWeakObjectPtr<ACharacter> OwningCharacter;
-
 	UPROPERTY(Replicated)
 	TObjectPtr<AActor> SpawnedActor = nullptr;
-
-protected:
-	virtual bool IsSupportedForNetworking() const override { return true; }
+	
 };

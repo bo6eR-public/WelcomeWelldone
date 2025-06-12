@@ -5,26 +5,26 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellFunctionLibrary)
 
-FGameplayAbilityTargetDataHandle UWellFunctionLibrary::MakeAbilityTargetDataFromAnimInstance(const TSubclassOf<UAnimInstance>& AnimInstance)
+FGameplayAbilityTargetDataHandle UWellFunctionLibrary::MakeAbilityTargetDataFromEquipInstance(UWellEquipmentInstance* Instance)
 {
-	FGameplayAbilityTargetData_AnimInstance* TargetData = new FGameplayAbilityTargetData_AnimInstance();
-	TargetData->AnimInstance = AnimInstance;
+	FGameplayAbilityTargetData_EquipInstance* TargetData = new FGameplayAbilityTargetData_EquipInstance();
+	TargetData->Instance = Instance;
 	
 	FGameplayAbilityTargetDataHandle Handle;
-	Handle.Data.Add(TSharedPtr<FGameplayAbilityTargetData_AnimInstance>(TargetData));
+	Handle.Data.Add(TSharedPtr<FGameplayAbilityTargetData_EquipInstance>(TargetData));
 	
 	return Handle;
 }
 
-TSubclassOf<UAnimInstance> UWellFunctionLibrary::GetAnimInstanceFromTargetData(const FGameplayAbilityTargetDataHandle& TargetData, EConfirmType& ConfirmType)
+UWellEquipmentInstance* UWellFunctionLibrary::GetEquipInstanceFromTargetData(const FGameplayAbilityTargetDataHandle& TargetData, EConfirmType& ConfirmType)
 {
 	if (TargetData.IsValid(0))
 	{
-		FGameplayAbilityTargetData_AnimInstance* ExtractedTargetData = static_cast<FGameplayAbilityTargetData_AnimInstance*>(TargetData.Data[0].Get());
-		if (ExtractedTargetData && ExtractedTargetData->AnimInstance)
+		FGameplayAbilityTargetData_EquipInstance* ExtractedTargetData = static_cast<FGameplayAbilityTargetData_EquipInstance*>(TargetData.Data[0].Get());
+		if (ExtractedTargetData && ExtractedTargetData->Instance)
 		{
 			ConfirmType = EConfirmType::Successful;
-			return ExtractedTargetData->AnimInstance;
+			return ExtractedTargetData->Instance;
 		}
 	}
 	

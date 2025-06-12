@@ -16,8 +16,8 @@ class WELCOMEWELLDONE_API UWellFunctionLibrary : public UBlueprintFunctionLibrar
 	GENERATED_BODY()
 
 public:
-	static FGameplayAbilityTargetDataHandle MakeAbilityTargetDataFromAnimInstance(const TSubclassOf<UAnimInstance>& AnimInstance);
+	static FGameplayAbilityTargetDataHandle MakeAbilityTargetDataFromEquipInstance(UWellEquipmentInstance* Instance);
 
-	UFUNCTION(BlueprintCallable, Category="Storage|Text", meta=(ExpandEnumAsExecs="ConfirmType"))
-	static TSubclassOf<UAnimInstance> GetAnimInstanceFromTargetData(const FGameplayAbilityTargetDataHandle& TargetData, EConfirmType& ConfirmType);
+	UFUNCTION(BlueprintCallable, meta=(ExpandEnumAsExecs="ConfirmType"))
+	static UWellEquipmentInstance* GetEquipInstanceFromTargetData(const FGameplayAbilityTargetDataHandle& TargetData, EConfirmType& ConfirmType);
 };

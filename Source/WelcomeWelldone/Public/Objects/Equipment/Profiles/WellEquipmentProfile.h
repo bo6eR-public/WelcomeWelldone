@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CommomTypes/WellCommonTypes.h"
 #include "UObject/Object.h"
 #include "WellEquipmentProfile.generated.h"
 
 
 class UWellGameplayAbility;
 class UWellInputConfigDataAsset;
-class UWellCommonStartUpDataAsset;
 class UWellEquipmentInstance;
 
 UCLASS(Blueprintable)
@@ -18,7 +18,6 @@ class WELCOMEWELLDONE_API UWellEquipmentProfile : public UObject
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE [[nodiscard]] UWellCommonStartUpDataAsset* GetApplyingAbilityData() const { return ApplyingAbilityData; }
 	FORCEINLINE [[nodiscard]] UWellInputConfigDataAsset* GetInputConfig() const { return OverridingInputConfig; }
 	FORCEINLINE [[nodiscard]] TSubclassOf<UAnimInstance> GetAnimationLayer() const { return AnimationLayer; }
 	
@@ -26,9 +25,6 @@ public:
 	TSubclassOf<UWellEquipmentInstance> EquipmentInstance;
 	
 private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Ability, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UWellCommonStartUpDataAsset> ApplyingAbilityData;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UWellInputConfigDataAsset> OverridingInputConfig;
 

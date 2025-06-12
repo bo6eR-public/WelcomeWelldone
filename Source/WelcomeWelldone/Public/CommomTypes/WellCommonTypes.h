@@ -60,23 +60,23 @@ struct FAttachedSpawnInfo
 };
 
 USTRUCT()
-struct FGameplayAbilityTargetData_AnimInstance : public FGameplayAbilityTargetData
+struct FGameplayAbilityTargetData_EquipInstance : public FGameplayAbilityTargetData
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TSubclassOf<UAnimInstance> AnimInstance = nullptr;
+	class UWellEquipmentInstance* Instance = nullptr;
 
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FGameplayAbilityTargetData_AnimInstance::StaticStruct(); // Neccesary for NetSerialize(...)
+		return FGameplayAbilityTargetData_EquipInstance::StaticStruct(); // Neccesary for NetSerialize(...)
 	}
 };
 
 template<>
-struct TStructOpsTypeTraits<FGameplayAbilityTargetData_AnimInstance> : public TStructOpsTypeTraitsBase2<FGameplayAbilityTargetData_AnimInstance>
+struct TStructOpsTypeTraits<FGameplayAbilityTargetData_EquipInstance> : public TStructOpsTypeTraitsBase2<FGameplayAbilityTargetData_EquipInstance>
 {
 	enum
 	{
