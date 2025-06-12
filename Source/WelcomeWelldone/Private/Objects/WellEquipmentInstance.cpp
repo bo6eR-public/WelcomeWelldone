@@ -37,7 +37,10 @@ void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfi
 		PlayerCharacter->OverrideInputSettings(OwningProfile->GetInputConfig());
 	}
 	LinkAnimLayers(OwningProfile->GetAnimationLayer());
-	SpawnEquipmentActor(AttachedActorInfo);
+	if (PlayerCharacter->HasAuthority())
+	{
+		SpawnEquipmentActor(AttachedActorInfo);
+	}
 }
 
 void UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProfile)
@@ -48,7 +51,10 @@ void UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProf
 		PlayerCharacter->ResetInputSettings(OwningProfile->GetInputConfig());
 	}
 	LinkAnimLayers(nullptr); //~ Unlink layer
-	DestroyEquipmentActor();
+	if (PlayerCharacter->HasAuthority())
+	{
+		DestroyEquipmentActor();
+	}
 }
 
 void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

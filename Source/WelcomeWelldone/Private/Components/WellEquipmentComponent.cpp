@@ -50,10 +50,10 @@ void FEquipmentStorage::RemoveEntry(UWellEquipmentInstance* EntryInstance)
 	
 	for (auto It = EntriesStorage.CreateIterator(); It; ++It)
 	{
-		const auto Instance = It->Instance;
-		if (Instance && Instance == EntryInstance)
+		FEquipmentEntry& Entry = *It;
+		if (Entry.IsValid() && Entry.Instance == EntryInstance)
 		{
-			UWellEquipmentProfile* EquipmentCDO = It->InstigatorProfile.GetDefaultObject();
+			UWellEquipmentProfile* EquipmentCDO = Entry.InstigatorProfile.GetDefaultObject();
 			if (const auto AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningComponent->GetOwner()))
 			{
 				if (const auto StartUpData = EquipmentCDO->GetApplyingAbilityData())
@@ -72,7 +72,7 @@ void FEquipmentStorage::PreReplicatedRemove(const TArrayView<int32> RemovedIndic
 	for (int32 Index : RemovedIndices)
 	{
 		FEquipmentEntry& Entry = EntriesStorage[Index];
-		if (Entry.Instance)
+		if (Entry.IsValid())
 		{
 			const auto OwningProfile = Entry.InstigatorProfile;
 			Entry.Instance->OnUneqipped(OwningProfile.GetDefaultObject());
@@ -110,9 +110,8 @@ UWellEquipmentComponent::UWellEquipmentComponent(const FObjectInitializer& Objec
 
 UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
 {
-	checkf(EquipmentProfile, TEXT("Equipment profile is not valid!"));
-
 	FEquipmentEntry& ResultEntry = EquipmentEntries.AddEntry(EquipmentProfile);
+	
 	if (ResultEntry.IsValid() && ResultEntry.Instance->Initialize(GetOwner()))
 	{
 		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
@@ -121,7 +120,7 @@ UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(c
 		}
 		const auto OwningProfile = ResultEntry.InstigatorProfile;
 		ResultEntry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
-			
+		
 		bIsCharacterEquipped = true;
 		return ResultEntry.Instance;
 	}
@@ -146,14 +145,17 @@ void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
 
 void UWellEquipmentComponent::UnequipEntry_ByHandle(int32 Handle)
 {
-	if (GetOwner()->HasAuthority())
+	FEquipmentEntry& Entry = EquipmentEntries[Handle];
+	if (Entry.IsValid() && Entry.Instance->Initialize(GetOwner()))
 	{
-		FEquipmentEntry& Entry = EquipmentEntries[Handle];
-		if (Entry.IsValid() && Entry.Instance->Initialize(GetOwner()))
+		if (IsUsingRegisteredSubObjectList())
 		{
-			const auto OwningProfile = Entry.InstigatorProfile;
-			bIsCharacterEquipped = !Entry.Instance->OnUneqipped(OwningProfile.GetDefaultObject());
+			RemoveReplicatedSubObject(Entry.Instance);
 		}
+		const auto OwningProfile = Entry.InstigatorProfile;
+		Entry.Instance->OnUneqipped(OwningProfile.GetDefaultObject());
+			
+		bIsCharacterEquipped = false;
 		EquipmentEntries.RemoveEntry(Entry.Instance);
 	}
 }
