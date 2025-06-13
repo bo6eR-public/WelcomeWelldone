@@ -3,16 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommomTypes/WellCommonTypes.h"
 #include "UObject/Object.h"
 #include "WellEquipmentProfile.generated.h"
 
 
-class UWellGameplayAbility;
 class UWellInputConfigDataAsset;
 class UWellEquipmentInstance;
 
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, Const, Abstract)
 class WELCOMEWELLDONE_API UWellEquipmentProfile : public UObject
 {
 	GENERATED_BODY()

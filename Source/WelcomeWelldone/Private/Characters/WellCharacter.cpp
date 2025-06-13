@@ -3,7 +3,7 @@
 
 #include "WelcomeWelldone/Public/Characters/WellCharacter.h"
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
-#include "AbilitySystem/Attributes/WellAttributeSet.h"
+#include "AbilitySystem/Attributes/WellAttributeSet_Core.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WellCharacterMovementComponent.h"
 #include "Components/WellEquipmentComponent.h"
@@ -28,7 +28,7 @@ AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	DefaultAttributeSet = CreateDefaultSubobject<UWellAttributeSet>(TEXT("AttributeSet"));
+	DefaultAttributeSet = CreateDefaultSubobject<UWellAttributeSet_Core>(TEXT("AttributeSet"));
 
 	//~ Lambda function for infinity gameplay effects
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetMaxMovementSpeedAttribute()).AddLambda

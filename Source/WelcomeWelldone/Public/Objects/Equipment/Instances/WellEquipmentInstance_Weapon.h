@@ -13,7 +13,27 @@ class WELCOMEWELLDONE_API UWellEquipmentInstance_Weapon : public UWellEquipmentI
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Animations)
-	TObjectPtr<UAnimMontage> FireAnimMontage;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+public:
+	UFUNCTION(BlueprintPure, Category=Ammo)
+	FORCEINLINE int32 GetRemainingAmmo() { return AmmoRegister.X; }
+
+	UFUNCTION(BlueprintPure, Category=Ammo)
+	FORCEINLINE int32 GetMagazineAmmo() { return AmmoRegister.Y; }
+	
+	UFUNCTION(BlueprintPure, Category=Ammo)
+	FORCEINLINE int32 GetTotalAmmo() { return AmmoRegister.Z; }
+
+	UFUNCTION(BlueprintCallable, Category=Ammo)
+	FORCEINLINE void SetRemainingAmmo(const int32 Value) { AmmoRegister.X = FMath::Max(0, Value); }
+
+	UFUNCTION(BlueprintCallable, Category=Ammo)
+	FORCEINLINE void SetTotalAmmo(const int32 Value) { AmmoRegister.Z = FMath::Max(0, Value); }
+
+private:
+	UPROPERTY(Replicated, EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category=Ammo)
+	/* This is container for ammo of weapon:
+	 * X coord means remaining ammo. Y coord means magazine ammo. Z coord means total ammo */
+	FVector_NetQuantize100 AmmoRegister;
 };

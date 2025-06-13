@@ -50,6 +50,8 @@ void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfi
 		GiveEquipmentAbilities();
 		SpawnEquipmentActor(AttachedActorInfo);
 	}
+
+	bIsEquipped = true;
 }
 
 void UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProfile)
@@ -65,6 +67,8 @@ void UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProf
 		ClearEquipmentAbilities();
 		DestroyEquipmentActor();
 	}
+
+	bIsEquipped = false;
 }
 
 void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -21,5 +21,5 @@ namespace WellGameplayTags
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(State_Run, "State.Run");
 
 	/** Event Tags **/
-	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Event_LinkLayer, "Event.LinkLayer");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Event_Reload, "Event.Reload");
 }

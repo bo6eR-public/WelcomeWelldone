@@ -10,7 +10,7 @@
 
 class UWellEquipmentProfile;
 
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, Abstract)
 class WELCOMEWELLDONE_API UWellEquipmentInstance : public UObject
 {
 	GENERATED_BODY()
@@ -42,6 +42,12 @@ protected:
 	virtual bool IsSupportedForNetworking() const override { return true; }
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animations|Equip", meta=(AllowPrivateAccess=true))
+	UAnimMontage* EquipMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animations|Unequip", meta=(AllowPrivateAccess=true))
+	UAnimMontage* UnequipMontage = nullptr;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FAttachedSpawnInfo AttachedActorInfo;
 
@@ -51,5 +57,7 @@ protected:
 private:
 	UPROPERTY(Replicated)
 	TObjectPtr<AActor> SpawnedActor = nullptr;
-	
+
+	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	bool bIsEquipped = false;
 };
