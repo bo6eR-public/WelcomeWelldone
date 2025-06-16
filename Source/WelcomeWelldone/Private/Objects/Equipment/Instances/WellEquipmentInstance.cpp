@@ -84,11 +84,11 @@ void UWellEquipmentInstance::SpawnEquipmentActor(const FAttachedSpawnInfo& Attac
 	{
 		if (USceneComponent* AttachComponent = Character->GetMesh())
 		{
-			SpawnedActor = GetWorld()->SpawnActorDeferred<AActor>(AttachInfo.Actor, FTransform::Identity, Character);
-			SpawnedActor->FinishSpawning(FTransform::Identity, true);
-			SpawnedActor->SetActorRelativeTransform(AttachInfo.Transform);
+			const FActorSpawnParameters SpawnParams;
+			SpawnedActor = GetWorld()->SpawnActor<AActor>(AttachInfo.Actor, FTransform::Identity, SpawnParams);
+			SpawnedActor->SetReplicates(true);
 
-			FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::KeepRelativeTransform;
+			const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetIncludingScale;
 			SpawnedActor->AttachToComponent(AttachComponent, AttachmentRules, AttachInfo.AttachedSocketName);
 		}
 	}
@@ -120,6 +120,8 @@ void UWellEquipmentInstance::GiveEquipmentAbilities()
 
 					AbilitySpec.GameplayEventData = MakeShared<FGameplayEventData>();
 					AbilitySpec.GameplayEventData.Get()->TargetData = UWellFunctionLibrary::MakeAbilityTargetDataFromEquipInstance(this);
+
+					AbilitySpec.SourceObject = this;
 					
 					AbilitySystem->GiveAbility(AbilitySpec);
 				}

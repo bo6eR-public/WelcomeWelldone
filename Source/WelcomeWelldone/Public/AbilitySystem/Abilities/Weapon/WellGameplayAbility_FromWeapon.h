@@ -15,5 +15,8 @@ class WELCOMEWELLDONE_API UWellGameplayAbility_FromWeapon : public UWellGameplay
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category=EventData)
 	FGameplayAbilityTargetDataHandle GetTargetDataHandleFromAbilitySpec() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category=Instance)
+	class UWellEquipmentInstance_Weapon* GetAttachmentWeaponInstance() const;
 	
 };

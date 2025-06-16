@@ -4,6 +4,7 @@
 #include "WelcomeWelldone/Public/Characters/WellCharacter.h"
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/WellAttributeSet_Core.h"
+#include "AbilitySystem/Attributes/WellAttributeSet_Damage.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WellCharacterMovementComponent.h"
 #include "Components/WellEquipmentComponent.h"
@@ -28,10 +29,11 @@ AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	DefaultAttributeSet = CreateDefaultSubobject<UWellAttributeSet_Core>(TEXT("AttributeSet"));
+	CoreAttributeSet = CreateDefaultSubobject<UWellAttributeSet_Core>(TEXT("CoreAttributeSet"));
+	DamageAttributeSet = CreateDefaultSubobject<UWellAttributeSet_Damage>(TEXT("DamageAttributeSet"));
 
 	//~ Lambda function for infinity gameplay effects
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetMaxMovementSpeedAttribute()).AddLambda
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CoreAttributeSet->GetMaxMovementSpeedAttribute()).AddLambda
 	([this](const FOnAttributeChangeData& Data)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
@@ -92,5 +94,5 @@ UWellAbilitySystemComponent* AWellCharacter::GetWellAbilitySystemComponent() con
 
 UAttributeSet* AWellCharacter::GetAttributeSet() const
 {
-	return DefaultAttributeSet ? DefaultAttributeSet : nullptr;
+	return CoreAttributeSet ? CoreAttributeSet : nullptr;
 }

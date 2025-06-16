@@ -34,7 +34,10 @@ protected:
 	TObjectPtr<class UWellAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
-	TObjectPtr<class UWellAttributeSet_Core> DefaultAttributeSet;
+	TObjectPtr<class UWellAttributeSet_Core> CoreAttributeSet;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
+	TObjectPtr<class UWellAttributeSet_Damage> DamageAttributeSet;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
 	TObjectPtr<class UWellEquipmentComponent> EquipmentComponent;

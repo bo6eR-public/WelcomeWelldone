@@ -2,6 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/Weapon/WellGameplayAbility_FromWeapon.h"
+#include "Objects/Equipment/Instances/WellEquipmentInstance_Weapon.h"
 
 FGameplayAbilityTargetDataHandle UWellGameplayAbility_FromWeapon::GetTargetDataHandleFromAbilitySpec() const
 {
@@ -11,4 +12,9 @@ FGameplayAbilityTargetDataHandle UWellGameplayAbility_FromWeapon::GetTargetDataH
 		return AbilitySpec->GameplayEventData.Get()->TargetData;
 	}
 	return FGameplayAbilityTargetDataHandle();
+}
+
+UWellEquipmentInstance_Weapon* UWellGameplayAbility_FromWeapon::GetAttachmentWeaponInstance() const
+{
+	return Cast<UWellEquipmentInstance_Weapon>(GetSourceObject(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()));
 }
