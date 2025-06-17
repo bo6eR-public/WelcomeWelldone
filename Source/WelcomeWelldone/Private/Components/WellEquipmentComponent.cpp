@@ -140,6 +140,18 @@ void UWellEquipmentComponent::UnequipEntry_ByHandle(int32 Handle)
 	}
 }
 
+UWellEquipmentInstance* UWellEquipmentComponent::GetFirstEquippedInstance() const 
+{
+	for (const FEquipmentEntry& Entry : EquipmentEntries.EntriesStorage)
+	{
+		if (Entry.Instance->IsEquipped())
+		{
+			return Entry.Instance;
+		}
+	}
+	return nullptr;
+}
+
 void UWellEquipmentComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

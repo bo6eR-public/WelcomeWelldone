@@ -9,6 +9,9 @@
 #include "Components/WellEnhancedInputComponent.h"
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "OnlineSubsystem.h"
+#include "OnlineSubsystemUtils.h"
+
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerCharacter)
 
@@ -43,6 +46,16 @@ void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAbilityInputConfig(InputConfig, this, &ThisClass::AbilityInputPressed, &ThisClass::AbilityInputReleased);
 		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Move);
 		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
+	}
+}
+
+void AWellPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	const IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
+	if (OnlineSubsystem && GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, FString::Printf(TEXT("Subsystem name = %s"), *OnlineSubsystem->GetSubsystemName().ToString()));
 	}
 }
 

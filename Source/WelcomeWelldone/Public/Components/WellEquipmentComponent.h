@@ -95,6 +95,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Unequip Entry"))
 	void UnequipEntry_ByHandle(int32 Handle);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category=Instance)
+	UWellEquipmentInstance* GetFirstEquippedInstance() const ;
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;

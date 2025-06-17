@@ -19,7 +19,10 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	class UWellAbilitySystemComponent* GetWellAbilitySystemComponent() const;
-	FORCEINLINE class UAttributeSet* GetAttributeSet() const;
+	FORCEINLINE class UAttributeSet* GetCoreAttributeSet() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category=Equipment)
+	FORCEINLINE class UWellEquipmentComponent* GetEquipmentComponent() const { return EquipmentComponent; }
 	
 protected:
 	void AbilityInputPressed(FGameplayTag InInputTag);

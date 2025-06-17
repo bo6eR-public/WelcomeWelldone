@@ -76,6 +76,7 @@ void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	UObject::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(ThisClass, SpawnedActor);
+	DOREPLIFETIME(ThisClass, bIsEquipped);
 }
 
 void UWellEquipmentInstance::SpawnEquipmentActor(const FAttachedSpawnInfo& AttachInfo)

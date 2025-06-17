@@ -4,6 +4,18 @@
 #include "AbilitySystem/Abilities/Weapon/WellGameplayAbility_FromWeapon.h"
 #include "Objects/Equipment/Instances/WellEquipmentInstance_Weapon.h"
 
+USkeletalMeshComponent* UWellGameplayAbility_FromWeapon::TryToExtractMeshFromSpawnedActor() const
+{
+	if (const UWellEquipmentInstance_Weapon* Instance = GetAttachmentWeaponInstance())
+	{
+		if (AActor* Spawned = Instance->GetSpawnedActor())
+		{
+			return Cast<USkeletalMeshComponent>(Spawned->GetDefaultSubobjectByName(FName(TEXT("Mesh"))));
+		}
+	}
+	return nullptr;
+}
+
 FGameplayAbilityTargetDataHandle UWellGameplayAbility_FromWeapon::GetTargetDataHandleFromAbilitySpec() const
 {
 	const FGameplayAbilitySpec* AbilitySpec = GetCurrentAbilitySpec();

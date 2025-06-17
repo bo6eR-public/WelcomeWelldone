@@ -12,7 +12,12 @@ class WELCOMEWELLDONE_API UWellGameplayAbility_FromWeapon : public UWellGameplay
 {
 	GENERATED_BODY()
 
+protected:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category=Instance)
+	USkeletalMeshComponent* TryToExtractMeshFromSpawnedActor() const;
+
 public:
+	/* Deprecated because, when we're calling activate ability in the second time, target data is reseted */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category=EventData)
 	FGameplayAbilityTargetDataHandle GetTargetDataHandleFromAbilitySpec() const;
 

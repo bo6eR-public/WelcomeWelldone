@@ -23,12 +23,16 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	ACharacter* GetOwnerAsCharacter() const;
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE AActor* GetSpawnedActor() const { return SpawnedActor; };
 	
 	virtual void OnEquipped(const UWellEquipmentProfile* OwningProfile);
 	virtual void OnUneqipped(const UWellEquipmentProfile* OwningProfile);
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName="Link Anim Layers")
 	void BP_LinkAnimLayers(TSubclassOf<UAnimInstance> LinkedInstance);
+
+	inline bool IsEquipped() const { return bIsEquipped; };
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
