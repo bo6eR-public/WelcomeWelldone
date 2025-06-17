@@ -29,7 +29,7 @@ bool UWellGameplayAbility_Jump::CanActivateAbility(const FGameplayAbilitySpecHan
 					Character->GetVelocity().GetSafeNormal(),
 					Character->GetActorForwardVector()
 				);
-				return Character->CanJump() && LocalMovementDirection > 0.1f; // 0.1 means character has a little velocity
+				return Character->CanJump() && LocalMovementDirection >= 0.f;
 			}
 		}
 	}
