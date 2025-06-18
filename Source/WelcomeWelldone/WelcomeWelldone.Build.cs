@@ -12,7 +12,7 @@ public class WelcomeWelldone : ModuleRules
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
 			"GameplayTags", "GameplayTasks", "GameplayAbilities", "PhysicsCore", 
-			"NetCore"
+			"NetCore", "UMG",
 		});
 		
 		PrivateDependencyModuleNames.AddRange(new string[]

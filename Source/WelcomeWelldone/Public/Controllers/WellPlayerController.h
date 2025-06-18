@@ -14,4 +14,8 @@ class WELCOMEWELLDONE_API AWellPlayerController : public APlayerController
 
 private:
 	virtual void ProcessPlayerInput(const float DeltaTime, const bool bGamePaused) override;
+
+protected:
+	virtual void OnRep_PlayerState() override;
 };
+

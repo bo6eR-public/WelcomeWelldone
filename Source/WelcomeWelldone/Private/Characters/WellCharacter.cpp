@@ -92,7 +92,7 @@ UWellAbilitySystemComponent* AWellCharacter::GetWellAbilitySystemComponent() con
 	return AbilitySystemComponent ? AbilitySystemComponent : nullptr;
 }
 
-UAttributeSet* AWellCharacter::GetCoreAttributeSet() const
+UAttributeSet* AWellCharacter::GetAttributeSet() const
 {
 	return CoreAttributeSet ? CoreAttributeSet : nullptr;
 }
