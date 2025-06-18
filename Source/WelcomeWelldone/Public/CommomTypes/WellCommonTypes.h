@@ -105,3 +105,25 @@ public:
 	FString Attribute = TEXT("");
 	
 };
+
+USTRUCT(BlueprintType)
+struct FGameplayMessage_WeaponDataChanged
+{
+	GENERATED_BODY()
+	
+	FGameplayMessage_WeaponDataChanged() { }
+	
+	FGameplayMessage_WeaponDataChanged(float InRemainingAmmo, float InTotalAmmo, FName NewName) :
+		RemainingAmmo(InRemainingAmmo), TotalAmmo(InTotalAmmo), DisplayName(NewName) { }
+
+public:
+	UPROPERTY(BlueprintReadOnly, Category=Value)
+	int32 RemainingAmmo = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category=Value)
+	int32 TotalAmmo = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category=Name)
+	FName DisplayName = NAME_None;
+	
+};

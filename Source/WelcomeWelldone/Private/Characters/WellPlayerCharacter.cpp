@@ -36,7 +36,7 @@ AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectIniti
 			UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
 			if (MessageBusSubsystem != nullptr)
 			{
-				MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_ViewModel, FGameplayMessage_AttributeChanged(Data.NewValue, Data.OldValue, Data.Attribute.GetName()));
+				MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_Attribute, FGameplayMessage_AttributeChanged(Data.NewValue, Data.OldValue, Data.Attribute.GetName()));
 			}	
 		}
 	});
@@ -48,7 +48,7 @@ AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectIniti
 			UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
 			if (MessageBusSubsystem != nullptr)
 			{
-				MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_ViewModel, FGameplayMessage_AttributeChanged(Data.NewValue,Data.OldValue,Data.Attribute.GetName()));
+				MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_Attribute, FGameplayMessage_AttributeChanged(Data.NewValue,Data.OldValue,Data.Attribute.GetName()));
 			}
 		}
 	});

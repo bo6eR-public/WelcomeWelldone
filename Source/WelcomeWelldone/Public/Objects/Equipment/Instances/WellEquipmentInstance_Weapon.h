@@ -14,6 +14,7 @@ class WELCOMEWELLDONE_API UWellEquipmentInstance_Weapon : public UWellEquipmentI
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnEquipped(const UWellEquipmentProfile* OwningProfile) override;
 
 public:
 	UFUNCTION(BlueprintPure, Category=Ammo)
@@ -32,8 +33,14 @@ public:
 	FORCEINLINE void SetTotalAmmo(const int32 Value) { AmmoRegister.Z = FMath::Max(0, Value); }
 
 private:
-	UPROPERTY(Replicated, EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category=Ammo)
+	UPROPERTY(ReplicatedUsing=OnRep_AmmoRegister, EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category=Ammo)
 	/* This is container for ammo of weapon:
 	 * X coord means remaining ammo. Y coord means magazine ammo. Z coord means total ammo */
 	FVector_NetQuantize100 AmmoRegister;
+
+	UFUNCTION()
+	void OnRep_AmmoRegister();
+
+	/* Calls when instance have to notify locally UI about data changes */
+	void BroadcastWeaponDataChanges();
 };

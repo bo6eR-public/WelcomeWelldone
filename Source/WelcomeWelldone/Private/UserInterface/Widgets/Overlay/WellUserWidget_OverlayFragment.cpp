@@ -12,6 +12,7 @@ void UWellUserWidget_OverlayFragment::NativeConstruct()
 	UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
 	if (MessageBusSubsystem != nullptr)
 	{
-		MessageBusSubsystem->RegisterListener(WellGameplayTags::Message_ViewModel, this, &ThisClass::OnAttributeChanged);
+		MessageBusSubsystem->RegisterListener(WellGameplayTags::Message_Attribute, this, &ThisClass::OnAttributeChanged);
+		MessageBusSubsystem->RegisterListener(WellGameplayTags::Message_Instance_Weapon, this, &ThisClass::OnWeaponDataChanged);
 	}
 }
