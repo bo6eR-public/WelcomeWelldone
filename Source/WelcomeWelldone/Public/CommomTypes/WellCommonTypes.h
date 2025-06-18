@@ -83,3 +83,25 @@ struct TStructOpsTypeTraits<FGameplayAbilityTargetData_EquipInstance> : public T
 		WithNetSerializer = true	// For now this is REQUIRED for FGameplayAbilityTargetDataHandle net serialization to work
 	};
 };
+
+USTRUCT(BlueprintType)
+struct FGameplayMessage_AttributeChanged
+{
+	GENERATED_BODY()
+	
+	FGameplayMessage_AttributeChanged() { }
+	
+	FGameplayMessage_AttributeChanged(float InNewValue, float InOldValue, const TSubclassOf<UAttributeSet>& AttributeClass) :
+		NewValue(InNewValue), OldValue(InOldValue), Attribute(AttributeClass) {}
+
+public:
+	UPROPERTY(BlueprintReadOnly, Category=Value)
+	float NewValue = 0.f;
+	
+	UPROPERTY(BlueprintReadOnly, Category=Value)
+	float OldValue = 0.f;
+	
+	UPROPERTY(BlueprintReadOnly, Category=Attribute)
+	TSubclassOf<UAttributeSet> Attribute = nullptr;
+	
+};

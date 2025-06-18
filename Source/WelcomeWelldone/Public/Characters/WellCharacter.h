@@ -19,7 +19,9 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	class UWellAbilitySystemComponent* GetWellAbilitySystemComponent() const;
-	FORCEINLINE class UAttributeSet* GetAttributeSet() const;
+	
+	FORCEINLINE class UWellAttributeSet_Core* GetBaseAttributeSet() const { return CoreAttributeSet; }
+	FORCEINLINE class UWellAttributeSet_Damage* GetDamageAttributeSet() const { return DamageAttributeSet; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category=Equipment)
 	FORCEINLINE class UWellEquipmentComponent* GetEquipmentComponent() const { return EquipmentComponent; }

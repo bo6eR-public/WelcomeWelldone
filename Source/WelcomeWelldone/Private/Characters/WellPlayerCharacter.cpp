@@ -11,7 +11,8 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSubsystemUtils.h"
-
+#include "AbilitySystem/Attributes/WellAttributeSet_Core.h"
+#include "Runtime/GameplayMessageSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerCharacter)
 
@@ -28,6 +29,27 @@ AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectIniti
 	Camera->bUsePawnControlRotation = true;
 
 	GetMesh()->SetIsReplicated(true);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetBaseAttributeSet()->GetHealthAttribute()).AddLambda
+	([this](const FOnAttributeChangeData& Data)
+	{
+		UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
+		if (MessageBusSubsystem != nullptr)
+		{
+			MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_ViewModel,
+				FGameplayMessage_AttributeChanged(Data.NewValue, Data.OldValue, Data.Attribute.GetAttributeSetClass()));
+		}
+	});
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetBaseAttributeSet()->GetArmorAttribute()).AddLambda
+	([this](const FOnAttributeChangeData& Data)
+	{
+		UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
+		if (MessageBusSubsystem != nullptr)
+		{
+			MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_ViewModel,
+				FGameplayMessage_AttributeChanged(Data.NewValue, Data.OldValue, Data.Attribute.GetAttributeSetClass()));
+		}
+	});
 }
 
 void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -46,16 +68,6 @@ void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAbilityInputConfig(InputConfig, this, &ThisClass::AbilityInputPressed, &ThisClass::AbilityInputReleased);
 		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Move);
 		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
-	}
-}
-
-void AWellPlayerCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	const IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
-	if (OnlineSubsystem && GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, FString::Printf(TEXT("Subsystem name = %s"), *OnlineSubsystem->GetSubsystemName().ToString()));
 	}
 }
 

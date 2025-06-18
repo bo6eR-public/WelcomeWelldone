@@ -17,7 +17,7 @@ public class WelcomeWelldone : ModuleRules
 		
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"OnlineSubsystem", "OnlineSubsystemSteam"
+			"OnlineSubsystem", "OnlineSubsystemSteam", "MessageBusSubsystem", 
 		});
 	}
 }
