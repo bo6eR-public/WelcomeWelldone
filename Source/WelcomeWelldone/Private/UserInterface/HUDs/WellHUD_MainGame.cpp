@@ -6,12 +6,14 @@
 
 void AWellHUD_MainGame::InitializeHUD()
 {
+	UWorld* World = GetWorld();
+	check(World)
 	checkf(PlayerOverlayClass, TEXT("Player overlay class is not valid!"));
 	
 	const APlayerController* PlayerController = GetOwningPlayerController();
 	if (PlayerController && PlayerController->IsLocalPlayerController())
 	{
-		PlayerOverlay = CreateWidget<UUserWidget>(GetWorld(), PlayerOverlayClass, FName(TEXT("Player Overlay Widget")));
+		PlayerOverlay = CreateWidget<UUserWidget>(World, PlayerOverlayClass, FName(TEXT("Player Overlay Widget")));
 		if (PlayerOverlay != nullptr)
 		{
 			PlayerOverlay->AddToViewport();

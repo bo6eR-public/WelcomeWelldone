@@ -91,8 +91,8 @@ struct FGameplayMessage_AttributeChanged
 	
 	FGameplayMessage_AttributeChanged() { }
 	
-	FGameplayMessage_AttributeChanged(float InNewValue, float InOldValue, const TSubclassOf<UAttributeSet>& AttributeClass) :
-		NewValue(InNewValue), OldValue(InOldValue), Attribute(AttributeClass) {}
+	FGameplayMessage_AttributeChanged(float InNewValue, float InOldValue, const FString& AttributeName) :
+		NewValue(InNewValue), OldValue(InOldValue), Attribute(AttributeName) {}
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category=Value)
@@ -102,6 +102,6 @@ public:
 	float OldValue = 0.f;
 	
 	UPROPERTY(BlueprintReadOnly, Category=Attribute)
-	TSubclassOf<UAttributeSet> Attribute = nullptr;
+	FString Attribute = TEXT("");
 	
 };

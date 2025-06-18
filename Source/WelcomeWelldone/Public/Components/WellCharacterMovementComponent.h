@@ -16,7 +16,7 @@ struct FCharacterGroundInfo
 	FHitResult HitResult;
 
 	UPROPERTY()
-	float GroundDistance;
+	float GroundDistance = 0.f;
 	
 };
 

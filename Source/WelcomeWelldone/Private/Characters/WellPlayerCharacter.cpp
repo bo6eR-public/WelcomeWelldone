@@ -9,8 +9,6 @@
 #include "Components/WellEnhancedInputComponent.h"
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "OnlineSubsystem.h"
-#include "OnlineSubsystemUtils.h"
 #include "AbilitySystem/Attributes/WellAttributeSet_Core.h"
 #include "Runtime/GameplayMessageSubsystem.h"
 
@@ -33,21 +31,25 @@ AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectIniti
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetBaseAttributeSet()->GetHealthAttribute()).AddLambda
 	([this](const FOnAttributeChangeData& Data)
 	{
-		UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
-		if (MessageBusSubsystem != nullptr)
+		if (IsLocallyControlled())
 		{
-			MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_ViewModel,
-				FGameplayMessage_AttributeChanged(Data.NewValue, Data.OldValue, Data.Attribute.GetAttributeSetClass()));
+			UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
+			if (MessageBusSubsystem != nullptr)
+			{
+				MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_ViewModel, FGameplayMessage_AttributeChanged(Data.NewValue, Data.OldValue, Data.Attribute.GetName()));
+			}	
 		}
 	});
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetBaseAttributeSet()->GetArmorAttribute()).AddLambda
 	([this](const FOnAttributeChangeData& Data)
 	{
-		UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
-		if (MessageBusSubsystem != nullptr)
+		if (IsLocallyControlled())
 		{
-			MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_ViewModel,
-				FGameplayMessage_AttributeChanged(Data.NewValue, Data.OldValue, Data.Attribute.GetAttributeSetClass()));
+			UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld());
+			if (MessageBusSubsystem != nullptr)
+			{
+				MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_ViewModel, FGameplayMessage_AttributeChanged(Data.NewValue,Data.OldValue,Data.Attribute.GetName()));
+			}
 		}
 	});
 }

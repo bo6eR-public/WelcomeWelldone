@@ -21,9 +21,9 @@ void AWellPlayerController::ProcessPlayerInput(const float DeltaTime, const bool
 	}
 }
 
-void AWellPlayerController::OnRep_PlayerState()
+void AWellPlayerController::BeginPlay()
 {
-	Super::OnRep_PlayerState();
+	Super::BeginPlay();
 	if (IsLocalPlayerController())
 	{
 		AWellHUD_MainGame* MainGameHUD = CastChecked<AWellHUD_MainGame>(GetHUD());

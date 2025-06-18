@@ -16,9 +16,6 @@ public:
 	virtual void InitializeHUD();
 	virtual void UninitializeHUD();
 
-	UFUNCTION(BlueprintPure)
-	UUserWidget* GetCreatedPlayerOverlay() const { return PlayerOverlay; }
-
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Overlay)
 	TSubclassOf<UUserWidget> PlayerOverlayClass;
