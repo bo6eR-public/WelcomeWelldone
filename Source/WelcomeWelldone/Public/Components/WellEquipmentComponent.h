@@ -17,17 +17,18 @@ struct FEquipmentEntry : public FFastArraySerializerItem
 	explicit FEquipmentEntry(int32 InHandle) : Handle(InHandle) {}
 
 public:
-	bool IsValid() { return Handle > 0 && Instance; }
+	bool IsValid() const { return Handle >= 0 && Instance; }
+	class UWellEquipmentProfile* GetProfilePtr() const { return InstigatorProfile.GetDefaultObject(); }
 
 public:
 	UPROPERTY()
-	TSubclassOf<class UWellEquipmentProfile> InstigatorProfile;
+	TSubclassOf<UWellEquipmentProfile> InstigatorProfile;
 	
 	UPROPERTY()
 	TObjectPtr<class UWellEquipmentInstance> Instance = nullptr;
 
 	UPROPERTY(Transient, NotReplicated)
-	int32 Handle = 1;
+	int32 Handle = 0;
 	
 };
 
@@ -49,25 +50,14 @@ public:
 		return FastArrayDeltaSerialize<FEquipmentEntry, FEquipmentStorage>(EntriesStorage, DeltaParms, *this);
 	}
 	
-	void PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize);
-	void PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize);
-	
 	FEquipmentEntry& AddEntry(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
 	void RemoveEntry(UWellEquipmentInstance* EntryInstance);
 
 	FEquipmentEntry& operator[](int32 Index)
 	{
-		return EntriesStorage[Index];
-	}
-
-	FEquipmentEntry& operator[](UWellEquipmentInstance* EntryInstance)
-	{
-		for (FEquipmentEntry& Entry : EntriesStorage)
+		if (Index >= 0)
 		{
-			if (Entry.Instance == EntryInstance)
-			{
-				return Entry;
-			}
+			return EntriesStorage[Index];
 		}
 		static FEquipmentEntry Empty(-1);
 		return Empty;
@@ -101,17 +91,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Equip Entry With Adding"))
 	UWellEquipmentInstance* AddEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
-	
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Unequip Entry With Removing"))
-	void RemoveEntry_ByInstance(UWellEquipmentInstance* Instance);
 
 	UFUNCTION(Server, Reliable)
 	void TryToEquipEntry_ByHandle(int32 Handle);
-
+	
 	UFUNCTION(BlueprintPure)
 	UWellEquipmentInstance* GetFirstEquippedInstance() const;
-	UFUNCTION(BlueprintPure)
-	int GetFirstEquippedHandle() const;
+	int32 GetFirstEquippedHandle() const;
 
 	bool CanEquip(int32 Handle) const;
 
@@ -124,20 +110,16 @@ private:
 	void EquipEntry_ByHandle(int32 Handle);
 	void UnequipEntry_ByHandle(int32 Handle);
 
-	void UnequipEntry_ByInstance(UWellEquipmentInstance* Instance);
-
 	UFUNCTION()
-	void OnRep_CurrentEquippedHandle();
+	void OnRep_bIsCharacterEquipped();
 	
 private:
 	UPROPERTY(Replicated)
 	FEquipmentStorage EquipmentEntries;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(ReplicatedUsing=OnRep_bIsCharacterEquipped, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
     bool bIsCharacterEquipped = false;
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedHandle)
-	/* This is something like handle for replication when trying to equip */
-	bool bWasTryToEquip = false;
-	
+	UPROPERTY(ReplicatedUsing=OnRep_bIsCharacterEquipped)
+	int EventID = 0;
 };

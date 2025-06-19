@@ -40,7 +40,7 @@ ACharacter* UWellEquipmentInstance::GetOwnerAsCharacter() const
 void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfile)
 {
 	bIsEquipped = true;
-	
+
 	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(GetOwner());
 	if (PlayerCharacter->IsLocallyControlled())
 	{

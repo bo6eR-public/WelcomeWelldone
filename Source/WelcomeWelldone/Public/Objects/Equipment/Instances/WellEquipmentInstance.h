@@ -45,15 +45,16 @@ protected:
 
 	virtual bool IsSupportedForNetworking() const override { return true; }
 
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Name, meta=(AllowPrivateAccess=true))
-	FName DisplayName = NAME_None;
-	
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animations|Equip", meta=(AllowPrivateAccess=true))
 	UAnimMontage* EquipMontage = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animations|Unequip", meta=(AllowPrivateAccess=true))
 	UAnimMontage* UnequipMontage = nullptr;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Name, meta=(AllowPrivateAccess=true))
+	FName DisplayName = NAME_None;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FAttachedSpawnInfo AttachedActorInfo;
