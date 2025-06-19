@@ -60,6 +60,19 @@ public:
 		return EntriesStorage[Index];
 	}
 
+	FEquipmentEntry& operator[](UWellEquipmentInstance* EntryInstance)
+	{
+		for (FEquipmentEntry& Entry : EntriesStorage)
+		{
+			if (Entry.Instance == EntryInstance)
+			{
+				return Entry;
+			}
+		}
+		static FEquipmentEntry Empty(-1);
+		return Empty;
+	}
+
 public:
 	UPROPERTY()
 	TArray<FEquipmentEntry> EntriesStorage;
@@ -86,17 +99,21 @@ class WELCOMEWELLDONE_API UWellEquipmentComponent : public UActorComponent
 public:
 	UWellEquipmentComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Equip Entry"))
-	UWellEquipmentInstance* EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Equip Entry With Adding"))
+	UWellEquipmentInstance* AddEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
+	
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Unequip Entry With Removing"))
+	void RemoveEntry_ByInstance(UWellEquipmentInstance* Instance);
 
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Equip Entry"))
-	void EquipEntry_ByHandle(int32 Handle);
+	UFUNCTION(Server, Reliable)
+	void TryToEquipEntry_ByHandle(int32 Handle);
 
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Unequip Entry"))
-	void UnequipEntry_ByHandle(int32 Handle);
+	UFUNCTION(BlueprintPure)
+	UWellEquipmentInstance* GetFirstEquippedInstance() const;
+	UFUNCTION(BlueprintPure)
+	int GetFirstEquippedHandle() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category=Instance)
-	UWellEquipmentInstance* GetFirstEquippedInstance() const ;
+	bool CanEquip(int32 Handle) const;
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -104,10 +121,23 @@ protected:
 	virtual void ReadyForReplication() override;
 
 private:
+	void EquipEntry_ByHandle(int32 Handle);
+	void UnequipEntry_ByHandle(int32 Handle);
+
+	void UnequipEntry_ByInstance(UWellEquipmentInstance* Instance);
+
+	UFUNCTION()
+	void OnRep_CurrentEquippedHandle();
+	
+private:
 	UPROPERTY(Replicated)
 	FEquipmentStorage EquipmentEntries;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
     bool bIsCharacterEquipped = false;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedHandle)
+	/* This is something like handle for replication when trying to equip */
+	bool bWasTryToEquip = false;
 	
 };

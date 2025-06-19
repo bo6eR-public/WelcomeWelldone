@@ -62,6 +62,7 @@ void FEquipmentStorage::PreReplicatedRemove(const TArrayView<int32> RemovedIndic
 	}
 }
 
+
 void FEquipmentStorage::PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize)
 {
 	for (int32 Index : AddedIndices)
@@ -87,7 +88,7 @@ UWellEquipmentComponent::UWellEquipmentComponent(const FObjectInitializer& Objec
 	SetIsReplicatedByDefault(true);
 }
 
-UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
+UWellEquipmentInstance* UWellEquipmentComponent::AddEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
 {
 	FEquipmentEntry& ResultEntry = EquipmentEntries.AddEntry(EquipmentProfile);
 	
@@ -107,15 +108,57 @@ UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(c
 	return nullptr;
 }
 
+void UWellEquipmentComponent::RemoveEntry_ByInstance(UWellEquipmentInstance* Instance)
+{
+	if (Instance != nullptr)
+	{
+		if (IsUsingRegisteredSubObjectList())
+		{
+			RemoveReplicatedSubObject(Instance);
+		}
+		const TSubclassOf<UWellEquipmentProfile> OwningProfile = EquipmentEntries[Instance].IsValid() ? EquipmentEntries[Instance].InstigatorProfile : nullptr;
+		Instance->OnEquipped(OwningProfile.GetDefaultObject());
+		
+		bIsCharacterEquipped = true;
+		EquipmentEntries.RemoveEntry(Instance);
+	}
+}
+
+void UWellEquipmentComponent::TryToEquipEntry_ByHandle_Implementation(int32 Handle)
+{
+	if (!CanEquip(Handle)) return;
+	
+	if (bIsCharacterEquipped)
+	{
+		/* If character try to equip the same entry */
+		if (Handle == GetFirstEquippedHandle())
+		{
+			UnequipEntry_ByHandle(Handle);
+		}
+		/* If character try to equip other entry */
+		else
+		{
+			UWellEquipmentInstance* PreviousInstance = GetFirstEquippedInstance();
+			if (PreviousInstance != nullptr)
+			{
+				UnequipEntry_ByInstance(PreviousInstance);
+				// delay
+				//EquipEntry_ByHandle(Handle);
+			}
+		}
+	}
+	else
+	{
+		EquipEntry_ByHandle(Handle);
+	}
+	bWasTryToEquip = !bWasTryToEquip;
+}
+
 void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
 {
 	FEquipmentEntry& Entry = EquipmentEntries[Handle];
 	if (Entry.IsValid())
 	{
-		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
-		{
-			AddReplicatedSubObject(Entry.Instance);
-		}
 		const auto OwningProfile = Entry.InstigatorProfile;
 		Entry.Instance->OnEquipped(OwningProfile.GetDefaultObject());
 		
@@ -128,15 +171,25 @@ void UWellEquipmentComponent::UnequipEntry_ByHandle(int32 Handle)
 	FEquipmentEntry& Entry = EquipmentEntries[Handle];
 	if (Entry.IsValid())
 	{
-		if (IsUsingRegisteredSubObjectList())
-		{
-			RemoveReplicatedSubObject(Entry.Instance);
-		}
 		const auto OwningProfile = Entry.InstigatorProfile;
 		Entry.Instance->OnUneqipped(OwningProfile.GetDefaultObject());
-			
+
 		bIsCharacterEquipped = false;
-		EquipmentEntries.RemoveEntry(Entry.Instance);
+	}
+}
+
+void UWellEquipmentComponent::UnequipEntry_ByInstance(UWellEquipmentInstance* Instance)
+{
+	
+}
+
+void UWellEquipmentComponent::OnRep_CurrentEquippedHandle()
+{
+	FEquipmentEntry Entry = EquipmentEntries[GetFirstEquippedHandle()];
+	if (Entry.IsValid())
+	{
+		const auto OwningProfile = Entry.InstigatorProfile.GetDefaultObject();
+		Entry.Instance->IsEquipped() ? Entry.Instance->OnEquipped(OwningProfile) : Entry.Instance->OnUneqipped(OwningProfile);
 	}
 }
 
@@ -152,12 +205,32 @@ UWellEquipmentInstance* UWellEquipmentComponent::GetFirstEquippedInstance() cons
 	return nullptr;
 }
 
+int UWellEquipmentComponent::GetFirstEquippedHandle() const
+{
+	int Handle = 0;
+	for (FEquipmentEntry Entry : EquipmentEntries.EntriesStorage)
+	{
+		if (Entry.IsValid())
+			break;
+		Handle++;
+	}
+	return Handle;
+}
+
+bool UWellEquipmentComponent::CanEquip(int32 Handle) const
+{
+	/* If character has one item, but handle calls the second we exit from function */
+	return Handle < EquipmentEntries.EntriesStorage.Num();
+}
+
 void UWellEquipmentComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(ThisClass, EquipmentEntries);
 	DOREPLIFETIME(ThisClass, bIsCharacterEquipped);
+	
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, bWasTryToEquip, COND_None, REPNOTIFY_Always);
 }
 
 bool UWellEquipmentComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)

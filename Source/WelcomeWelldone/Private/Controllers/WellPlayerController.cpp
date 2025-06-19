@@ -24,6 +24,10 @@ void AWellPlayerController::ProcessPlayerInput(const float DeltaTime, const bool
 void AWellPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PlayerCameraManager->ViewPitchMin = -75.f;
+	PlayerCameraManager->ViewPitchMax = 75.f;
+	
 	if (IsLocalPlayerController())
 	{
 		AWellHUD_MainGame* MainGameHUD = CastChecked<AWellHUD_MainGame>(GetHUD());

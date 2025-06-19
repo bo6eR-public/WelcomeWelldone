@@ -6,10 +6,12 @@
 namespace WellGameplayTags
 {
 	/** Input Tags **/
-	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Move, "Input.Move");
-	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Look, "Input.Look");
-	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Jump, "Input.Jump");
-	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Run, "Input.Run");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Move, "Input.Native.Move");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Look, "Input.Native.Look");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Jump, "Input.Native.Jump");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Run, "Input.Native.Run");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Optional1, "Input.Native.Optional1");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Optional2, "Input.Native.Optional2");
 
 	//~ Weapon Input Tags ~//
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Weapon_Fire, "Input.Weapon.Fire");

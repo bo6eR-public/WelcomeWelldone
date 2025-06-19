@@ -25,8 +25,13 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 
 private:
-	void Move(const FInputActionValue& Value); // input handle
-	void Look(const FInputActionValue& Value); // input handle
+	//~ Begin of input handles
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+
+	void Optional1(const FInputActionValue& Value);
+	void Optional2(const FInputActionValue& Value);
+	//~ End of input handles
 
 	class UEnhancedInputLocalPlayerSubsystem* GetInputSubSystem() const;
 

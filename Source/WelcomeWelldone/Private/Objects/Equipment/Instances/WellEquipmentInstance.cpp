@@ -39,36 +39,38 @@ ACharacter* UWellEquipmentInstance::GetOwnerAsCharacter() const
 
 void UWellEquipmentInstance::OnEquipped(const UWellEquipmentProfile* OwningProfile)
 {
+	bIsEquipped = true;
+	
 	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(GetOwner());
 	if (PlayerCharacter->IsLocallyControlled())
 	{
 		PlayerCharacter->OverrideInputSettings(OwningProfile->GetInputConfig());
 	}
 	BP_LinkAnimLayers(OwningProfile->GetAnimationLayer());
+
 	if (PlayerCharacter->HasAuthority())
 	{
 		GiveEquipmentAbilities();
 		SpawnEquipmentActor(AttachedActorInfo);
 	}
-
-	bIsEquipped = true;
 }
 
 void UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProfile)
 {
+	bIsEquipped = false;
+	
 	AWellPlayerCharacter* PlayerCharacter = Cast<AWellPlayerCharacter>(GetOwner());
 	if (PlayerCharacter->IsLocallyControlled())
 	{
 		PlayerCharacter->ResetInputSettings(OwningProfile->GetInputConfig());
 	}
 	BP_LinkAnimLayers(nullptr); //~ Unlink layer
-	if (PlayerCharacter->HasAuthority())
+	
+	if (GetOwner()->HasAuthority())
 	{
 		ClearEquipmentAbilities();
 		DestroyEquipmentActor();
 	}
-
-	bIsEquipped = false;
 }
 
 void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -88,6 +90,7 @@ void UWellEquipmentInstance::SpawnEquipmentActor(const FAttachedSpawnInfo& Attac
 			const FActorSpawnParameters SpawnParams;
 			SpawnedActor = GetWorld()->SpawnActor<AActor>(AttachInfo.Actor, FTransform::Identity, SpawnParams);
 			SpawnedActor->SetReplicates(true);
+			SpawnedActor->SetActorRelativeTransform(AttachInfo.Transform);
 
 			const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetIncludingScale;
 			SpawnedActor->AttachToComponent(AttachComponent, AttachmentRules, AttachInfo.AttachedSocketName);

@@ -19,7 +19,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category=Attribute)
 	void OnAttributeChanged(FGameplayTag Tag, const FGameplayMessage_AttributeChanged& Message);
 	
-	UFUNCTION(BlueprintImplementableEvent, Category=Attribute)
+	UFUNCTION(BlueprintImplementableEvent, Category=WeaponData)
 	void OnWeaponDataChanged(FGameplayTag Tag, const FGameplayMessage_WeaponDataChanged& Message);
 	
 };

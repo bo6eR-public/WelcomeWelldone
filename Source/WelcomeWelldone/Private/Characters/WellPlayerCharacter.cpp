@@ -10,6 +10,7 @@
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Attributes/WellAttributeSet_Core.h"
+#include "Components/WellEquipmentComponent.h"
 #include "Runtime/GameplayMessageSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerCharacter)
@@ -20,11 +21,12 @@ AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectIniti
 	Camera->SetupAttachment(GetMesh(), TEXT("head"));
 	Camera->SetRelativeTransform(FTransform
 	(
-	FRotator(0.f, 90.f, 0.f),
+		FRotator(0.f, 90.f, 0.f),
 		FVector(5.f, 15.f, 0.f),
 		FVector(0.5f, 0.5f, 0.5f)
 	));
 	Camera->bUsePawnControlRotation = true;
+	Camera->FieldOfView = 135.f;
 
 	GetMesh()->SetIsReplicated(true);
 
@@ -68,8 +70,11 @@ void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if (UWellEnhancedInputComponent* EnhancedInputComponent = Cast<UWellEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAbilityInputConfig(InputConfig, this, &ThisClass::AbilityInputPressed, &ThisClass::AbilityInputReleased);
-		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Move);
-		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
+		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Native_Move, ETriggerEvent::Triggered, this, &ThisClass::Move);
+		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Native_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
+
+		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Native_Optional1, ETriggerEvent::Triggered, this, &ThisClass::Optional1);
+		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Native_Optional2, ETriggerEvent::Triggered, this, &ThisClass::Optional2);
 	}
 }
 
@@ -130,6 +135,22 @@ void AWellPlayerCharacter::Look(const FInputActionValue& Value)
 	if (LookAxis.Y != 0.f)
 	{
 		AddControllerPitchInput(-LookAxis.Y);
+	}
+}
+
+void AWellPlayerCharacter::Optional1(const FInputActionValue& Value)
+{
+	if (EquipmentComponent != nullptr)
+	{
+		EquipmentComponent->TryToEquipEntry_ByHandle(0);
+	}
+}
+
+void AWellPlayerCharacter::Optional2(const FInputActionValue& Value)
+{
+	if (EquipmentComponent != nullptr)
+	{
+		EquipmentComponent->TryToEquipEntry_ByHandle(1);
 	}
 }
 

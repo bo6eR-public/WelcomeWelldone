@@ -36,10 +36,10 @@ public:
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-
+	
 	void SpawnEquipmentActor(const FAttachedSpawnInfo& AttachInfo);
 	void DestroyEquipmentActor() const;
-
+	
 	void GiveEquipmentAbilities();
 	void ClearEquipmentAbilities() const;
 
