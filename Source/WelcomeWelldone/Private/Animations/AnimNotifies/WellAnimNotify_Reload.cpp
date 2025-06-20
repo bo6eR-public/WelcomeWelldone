@@ -18,3 +18,8 @@ void UWellAnimNotify_Reload::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Owner, WellGameplayTags::Event_Reload, Payload);
 	}
 }
+
+FString UWellAnimNotify_Reload::GetNotifyName_Implementation() const
+{
+	return FString(TEXT("AN_Reload"));
+}
