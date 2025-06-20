@@ -31,5 +31,5 @@ float UWellCharacterMovementComponent::TryGetGroundDistance() const
 	FHitResult HitResult;
 	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, CollisionChannel, QueryParams, FCollisionResponseParams::DefaultResponseParam);
 	
-	return HitResult.bBlockingHit ? FMath::Max(0.f, HitResult.Distance - CapsuleHalfHeight) : 0.f;
+	return HitResult.bBlockingHit ? FMath::Max(0.f, HitResult.Distance - CapsuleHalfHeight) : -1.f;
 }
