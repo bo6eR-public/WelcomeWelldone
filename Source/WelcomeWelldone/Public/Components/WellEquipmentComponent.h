@@ -121,5 +121,6 @@ private:
     bool bIsCharacterEquipped = false;
 
 	UPROPERTY(ReplicatedUsing=OnRep_bIsCharacterEquipped)
-	int EventID = 0;
+	/* For force replication of intances */
+	int EventID = 0; // @TODO: replace for "Push Model"?
 };
