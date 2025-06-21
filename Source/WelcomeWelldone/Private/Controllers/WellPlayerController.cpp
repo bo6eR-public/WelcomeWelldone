@@ -4,7 +4,7 @@
 #include "WelcomeWelldone/Public/Controllers/WellPlayerController.h"
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 #include "Characters/WellCharacter.h"
-#include "UserInterface/HUDs/WellHUD_MainGame.h"
+#include "UserInterface/HUDs/WellHUD_Master.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerController)
 
@@ -30,7 +30,7 @@ void AWellPlayerController::BeginPlay()
 	
 	if (IsLocalPlayerController())
 	{
-		AWellHUD_MainGame* MainGameHUD = CastChecked<AWellHUD_MainGame>(GetHUD());
+		AWellHUD_Master* MainGameHUD = CastChecked<AWellHUD_Master>(GetHUD());
 		if (MainGameHUD != nullptr)
 		{
 			MainGameHUD->InitializeHUD();
