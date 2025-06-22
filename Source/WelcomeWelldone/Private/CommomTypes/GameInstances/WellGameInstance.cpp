@@ -2,7 +2,15 @@
 
 
 #include "CommomTypes/GameInstances/WellGameInstance.h"
+#include "OnlineSessionSettings.h"
+#include "Online.h"
 #include "AbilitySystemGlobals.h"
+#include "OnlineSubsystemUtils.h"
+
+UWellGameInstance::UWellGameInstance(const FObjectInitializer& ObjectInitializer) :
+	Super(ObjectInitializer), OnCreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete))
+{
+}
 
 void UWellGameInstance::Init()
 {
@@ -10,9 +18,44 @@ void UWellGameInstance::Init()
 	UAbilitySystemGlobals::Get().InitGlobalData();
 }
 
-void UWellGameInstance::CreateSession()
+void UWellGameInstance::Server_CreateSession_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("CREATE"));
+	if (const IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld()))
+	{
+		const IOnlineSessionPtr OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
+
+		const FNamedOnlineSession* ExistedSession = OnlineSessionPtr->GetNamedSession(NAME_GameSession);
+		if (ExistedSession != nullptr)
+		{
+			OnlineSessionPtr->DestroySession(NAME_GameSession);
+		}
+		
+		if (OnlineSessionPtr.IsValid())
+		{
+			OnlineSessionPtr->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
+			
+			FOnlineSessionSettings SessionSettings;
+			SessionSettings.bIsLANMatch = false;
+			SessionSettings.bAllowJoinInProgress = true;
+			SessionSettings.NumPublicConnections = 2;
+			SessionSettings.bAllowJoinViaPresence = true;
+			SessionSettings.bUsesPresence = true;
+			SessionSettings.bShouldAdvertise = true;
+			SessionSettings.bUseLobbiesIfAvailable = true;
+
+			ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+			OnlineSessionPtr->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, SessionSettings);
+		}
+	}
+}
+
+void UWellGameInstance::OnCreateSessionComplete(FName Name, bool bSuccess)
+{
+	if (bSuccess)
+	{
+		const FString& LevelPath = TEXT("/Game/Levels/Maps/LV_Master");
+		GetWorld()->ServerTravel(LevelPath, TRAVEL_Absolute);
+	}
 }
 
 void UWellGameInstance::FindSession()
