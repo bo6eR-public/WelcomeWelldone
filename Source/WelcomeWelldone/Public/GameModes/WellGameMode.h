@@ -6,11 +6,13 @@
 #include "GameFramework/GameModeBase.h"
 #include "WellGameMode.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class WELCOMEWELLDONE_API AWellGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	AWellGameMode();
+	
 };

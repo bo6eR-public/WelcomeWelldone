@@ -10,16 +10,6 @@ UWellGameplayAbility_Pause::UWellGameplayAbility_Pause()
 	ActivationPolicy = EAbilityActivationPolicy::Triggered;
 }
 
-bool UWellGameplayAbility_Pause::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
-{
-	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-	{
-		/* UI part has to be only on the client */
-		return !ActorInfo->AvatarActor->HasAuthority();
-	}
-	return false;
-}
-
 void UWellGameplayAbility_Pause::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
