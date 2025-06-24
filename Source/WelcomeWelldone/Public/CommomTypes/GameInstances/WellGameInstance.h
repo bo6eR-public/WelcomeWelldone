@@ -34,9 +34,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Game|Sessions")
 	void FindSession();
 
-	//UFUNCTION(BlueprintCallable, Category="Game|Sessions")
-	//void JoinSession();
-
 	UFUNCTION(Exec, BlueprintCallable, Category="Game|Exit")
 	virtual void Exit() final;
 
@@ -49,7 +46,7 @@ private:
 
 private:
 	UFUNCTION()
-	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
+	void OnCreateSessionComplete(FName SessionName, bool bSuccessful);
 	UFUNCTION()
 	void OnFindSessionsComplete(bool bSuccess);
 

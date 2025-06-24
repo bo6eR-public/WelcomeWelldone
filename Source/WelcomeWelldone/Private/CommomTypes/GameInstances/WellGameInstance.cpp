@@ -5,16 +5,14 @@
 #include "OnlineSessionSettings.h"
 #include "AbilitySystemGlobals.h"
 #include "OnlineSubsystemUtils.h"
-#include "Online/OnlineSessionNames.h"
 #include "Online.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 UWellGameInstance::UWellGameInstance(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer), OnCreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
 	OnFindSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this,  &ThisClass::OnFindSessionsComplete)),
 	OnJoinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnJoinSessionComplete))
 {
-	UniqueSessionName = TEXT("Welldone! Wellcome!");
+	UniqueSessionName = TEXT("WellcomeWelldone");
 	UniqueSessionPassword = TEXT("bo6eR");
 }
 
@@ -26,45 +24,48 @@ void UWellGameInstance::Init()
 
 void UWellGameInstance::Server_CreateSession_Implementation()
 {
-	if (const IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld()))
+	if (const IOnlineSessionPtr OnlineSessionPtr =  Online::GetSessionInterface(GetWorld()))
 	{
-		const IOnlineSessionPtr OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
-
-		const FNamedOnlineSession* ExistedSession = OnlineSessionPtr->GetNamedSession(NAME_GameSession);
-		if (ExistedSession != nullptr)
+		if (OnlineSessionPtr->GetNamedSession(NAME_GameSession))
 		{
-			/* We have to delete existing session for work withou troubles */
+			/* We have to delete existing session for work without troubles */
 			OnlineSessionPtr->DestroySession(NAME_GameSession);
 		}
 		
 		if (OnlineSessionPtr.IsValid())
 		{
 			OnlineSessionPtr->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
-			
-			TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShared<FOnlineSessionSettings>();
+
+			const TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
 			SessionSettings->bIsLANMatch = false;
 			SessionSettings->bAllowJoinInProgress = true;
+			SessionSettings->bAllowInvites = true;
 			SessionSettings->NumPublicConnections = 2;
 			SessionSettings->bAllowJoinViaPresence = true;
 			SessionSettings->bUsesPresence = true;
 			SessionSettings->bShouldAdvertise = true;
-			SessionSettings->bUseLobbiesIfAvailable = true;
+			SessionSettings->bUseLobbiesIfAvailable = false;
 			SessionSettings->bIsDedicated = false;
 
 			SessionSettings->Set(UniqueSessionName, UniqueSessionPassword, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 			const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 			OnlineSessionPtr->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *SessionSettings.Get());
+
+			OnlineSessionPtr->UpdateSession(NAME_GameSession, *SessionSettings.Get(), true);
 		}
 	}
 }
 
-void UWellGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
+void UWellGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccessful)
 {
-	if (bSuccess || SessionName == NAME_GameSession)
+	if(const IOnlineSessionPtr OnlineSessionPtr =  Online::GetSessionInterface(GetWorld()))
 	{
-		GetWorld()->ServerTravel(TEXT("/Game/Levels/Maps/LV_Master?listen"), true);
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("OnCreateSessionComplete"));
+		OnlineSessionPtr->ClearOnCreateSessionCompleteDelegates(this);
+		if (bSuccessful && OnlineSessionPtr->StartSession(NAME_GameSession))
+		{
+			GetWorld()->ServerTravel(TEXT("/Game/Levels/TestLevel?listen"), true);
+		}
 	}
 }
 
@@ -73,13 +74,13 @@ void UWellGameInstance::FindSession()
 	if (const IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld()))
 	{
 		const IOnlineSessionPtr OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
-
+		if (!OnlineSessionPtr) return;
 		OnlineSessionPtr->AddOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegate);
 
-		SessionSearch = MakeShared<FOnlineSessionSearch>();
+		SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		SessionSearch->bIsLanQuery = false;
-		SessionSearch->MaxSearchResults = 10;
-		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+		SessionSearch->MaxSearchResults = 250;
+		SessionSearch->QuerySettings.Set("PRESENCESEARCH", true, EOnlineComparisonOp::Equals);
 
 		OnlineSessionPtr->FindSessions(*GetLocalPlayer()->GetPreferredUniqueNetId(), SessionSearch.ToSharedRef());
 	}
@@ -94,6 +95,7 @@ void UWellGameInstance::OnFindSessionsComplete(bool bSuccess)
 		{
 			if (Result.IsValid())
 			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Player: %s"), *Result.Session.OwningUserName));
 				FString ExtractedPassword;
 				Result.Session.SessionSettings.Get(UniqueSessionName, ExtractedPassword);
 				if (ExtractedPassword == UniqueSessionPassword)
@@ -106,11 +108,6 @@ void UWellGameInstance::OnFindSessionsComplete(bool bSuccess)
 		}
 	}
 }
-
-//void UWellGameInstance::JoinSession()
-//{
-//	
-//}
 
 void UWellGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
@@ -125,6 +122,7 @@ void UWellGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 				FString ConnectionInfo;
 				OnlineSessionPtr->GetResolvedConnectString(NAME_GameSession, ConnectionInfo);
 				ClientController->ClientTravel(ConnectionInfo, TRAVEL_Absolute);
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("JOIn %s"), *ConnectionInfo));
 			}
 		}
 	}
@@ -134,13 +132,14 @@ void UWellGameInstance::Exit()
 {
 	UWorld* World = GetWorld();
 	check(World);
-	
+
 #if PLATFORM_WINDOWS
-	if (World->GetNetMode() == NM_Client)
+	const ENetMode NetMode = World->GetNetMode();
+	if (NetMode == NM_Client || NetMode == NM_ListenServer || NetMode == NM_Standalone)
 	{
 		if (const auto ClientController = World->GetFirstPlayerController())
 		{
-			UKismetSystemLibrary::QuitGame(World, ClientController, EQuitPreference::Quit, true);
+			ClientController->ConsoleCommand(FString::Printf(TEXT("quit")));
 		}
 	}
 #endif
