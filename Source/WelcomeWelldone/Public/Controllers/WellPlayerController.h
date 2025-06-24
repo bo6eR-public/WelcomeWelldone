@@ -17,5 +17,10 @@ private:
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void NotifyLoadedWorld(FName WorldPackageName, bool bFinalDest) override;
+
+	UFUNCTION(Reliable, Server, WithValidation, SealedEvent)
+	void ServerNotifyLoadedWorldWorkaround(FName WorldPackageName);
 };
 

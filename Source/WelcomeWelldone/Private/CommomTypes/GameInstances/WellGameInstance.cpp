@@ -36,23 +36,20 @@ void UWellGameInstance::Server_CreateSession_Implementation()
 		{
 			OnlineSessionPtr->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
 
-			const TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
-			SessionSettings->bIsLANMatch = false;
-			SessionSettings->bAllowJoinInProgress = true;
-			SessionSettings->bAllowInvites = true;
-			SessionSettings->NumPublicConnections = 2;
-			SessionSettings->bAllowJoinViaPresence = true;
-			SessionSettings->bUsesPresence = true;
-			SessionSettings->bShouldAdvertise = true;
-			SessionSettings->bUseLobbiesIfAvailable = false;
-			SessionSettings->bIsDedicated = false;
+			FOnlineSessionSettings SessionSettings;
+			SessionSettings.bIsLANMatch = false;
+			SessionSettings.bAllowJoinInProgress = true;
+			SessionSettings.NumPublicConnections = 2;
+			SessionSettings.bAllowJoinViaPresence = true;
+			SessionSettings.bUsesPresence = true;
+			SessionSettings.bShouldAdvertise = true;
+			SessionSettings.bUseLobbiesIfAvailable = true;
+			SessionSettings.bIsDedicated = false;
 
-			SessionSettings->Set(UniqueSessionName, UniqueSessionPassword, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-
-			const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-			OnlineSessionPtr->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *SessionSettings.Get());
-
-			OnlineSessionPtr->UpdateSession(NAME_GameSession, *SessionSettings.Get(), true);
+			SessionSettings.Set(UniqueSessionName, UniqueSessionPassword, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+			
+			OnlineSessionPtr->CreateSession(*GetLocalPlayer()->GetPreferredUniqueNetId(), NAME_GameSession, SessionSettings);
+			OnlineSessionPtr->UpdateSession(NAME_GameSession, SessionSettings, true);
 		}
 	}
 }
@@ -64,7 +61,7 @@ void UWellGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess
 		OnlineSessionPtr->ClearOnCreateSessionCompleteDelegates(this);
 		if (bSuccessful && OnlineSessionPtr->StartSession(NAME_GameSession))
 		{
-			GetWorld()->ServerTravel(TEXT("/Game/Levels/TestLevel?listen"), true);
+			GetWorld()->ServerTravel(TEXT("/Game/Levels/Maps/LV_Master?listen"), true);
 		}
 	}
 }
@@ -80,7 +77,7 @@ void UWellGameInstance::FindSession()
 		SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		SessionSearch->bIsLanQuery = false;
 		SessionSearch->MaxSearchResults = 250;
-		SessionSearch->QuerySettings.Set("PRESENCESEARCH", true, EOnlineComparisonOp::Equals);
+		SessionSearch->QuerySettings.Set(TEXT("PRESENCESEARCH"), true, EOnlineComparisonOp::Equals);
 
 		OnlineSessionPtr->FindSessions(*GetLocalPlayer()->GetPreferredUniqueNetId(), SessionSearch.ToSharedRef());
 	}

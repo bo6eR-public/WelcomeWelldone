@@ -12,13 +12,35 @@ void UWellEquipmentInstance_Weapon::GetLifetimeReplicatedProps(TArray<class FLif
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ThisClass, AmmoRegister);
+	DOREPLIFETIME(ThisClass, RemainingAmmo);
+	DOREPLIFETIME(ThisClass, MagazineAmmo);
+	DOREPLIFETIME(ThisClass, TotalAmmo);
 }
 
 void UWellEquipmentInstance_Weapon::OnEquipped(const UWellEquipmentProfile* OwningProfile)
 {
 	Super::OnEquipped(OwningProfile);
 	BroadcastWeaponDataChanges();
+}
+
+void UWellEquipmentInstance_Weapon::SetRemainingAmmo_Implementation(const int32 Value)
+{
+	RemainingAmmo = FMath::Max(0, Value);
+	if (GetOwnerAsCharacter()->IsLocallyControlled())
+	{
+		/* If it is a listen server */
+		OnRep_AmmoRegister();
+	}
+}
+
+void UWellEquipmentInstance_Weapon::SetTotalAmmo(const int32 Value)
+{
+	TotalAmmo = FMath::Max(0, Value);
+	if (GetOwnerAsCharacter()->IsLocallyControlled())
+	{
+		/* If it is a listen server */
+		OnRep_AmmoRegister();
+	}
 }
 
 void UWellEquipmentInstance_Weapon::OnRep_AmmoRegister()
