@@ -31,6 +31,9 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category="Game|Sessions")
 	void Server_CreateSession();
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category="Game|Sessions")
+	void ServerTravel(const FString& URL);
+
 	UFUNCTION(BlueprintCallable, Category="Game|Sessions")
 	void FindSession();
 

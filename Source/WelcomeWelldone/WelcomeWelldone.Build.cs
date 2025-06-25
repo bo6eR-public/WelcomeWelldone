@@ -12,8 +12,12 @@ public class WelcomeWelldone : ModuleRules
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
 			"GameplayTags", "GameplayTasks", "GameplayAbilities", "UMG",
-			"NetCore", "OnlineSubsystem", "OnlineSubsystemSteam", "MessageBusSubsystem",
-			"PhysicsCore", "EngineSettings", 
+			"NetCore", "PhysicsCore", "EngineSettings", 
+		});
+
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"OnlineSubsystem", "OnlineSubsystemSteam", "MessageBusSubsystem",
 		});
 	}
 }

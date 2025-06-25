@@ -2,6 +2,7 @@
 
 
 #include "CommomTypes/GameInstances/WellGameInstance.h"
+#include "Online/OnlineSessionNames.h"
 #include "OnlineSessionSettings.h"
 #include "AbilitySystemGlobals.h"
 #include "OnlineSubsystemUtils.h"
@@ -61,23 +62,26 @@ void UWellGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess
 		OnlineSessionPtr->ClearOnCreateSessionCompleteDelegates(this);
 		if (bSuccessful && OnlineSessionPtr->StartSession(NAME_GameSession))
 		{
-			GetWorld()->ServerTravel(TEXT("/Game/Levels/Maps/LV_Master?listen"), true);
+			GetWorld()->ServerTravel(TEXT("/Game/Levels/Maps/LV_Lobby?listen"), true);
 		}
 	}
 }
 
+void UWellGameInstance::ServerTravel_Implementation(const FString& URL)
+{
+	GetWorld()->ServerTravel(URL + "?listen", true);
+}
+
 void UWellGameInstance::FindSession()
 {
-	if (const IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld()))
+	if (const IOnlineSessionPtr OnlineSessionPtr =  Online::GetSessionInterface(GetWorld()))
 	{
-		const IOnlineSessionPtr OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
-		if (!OnlineSessionPtr) return;
 		OnlineSessionPtr->AddOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegate);
 
 		SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		SessionSearch->bIsLanQuery = false;
 		SessionSearch->MaxSearchResults = 250;
-		SessionSearch->QuerySettings.Set(TEXT("PRESENCESEARCH"), true, EOnlineComparisonOp::Equals);
+		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 		OnlineSessionPtr->FindSessions(*GetLocalPlayer()->GetPreferredUniqueNetId(), SessionSearch.ToSharedRef());
 	}
@@ -88,6 +92,7 @@ void UWellGameInstance::OnFindSessionsComplete(bool bSuccess)
 	const IOnlineSessionPtr OnlineSessionPtr = Online::GetSessionInterface(GetWorld());
 	if (bSuccess && OnlineSessionPtr)
 	{
+		OnlineSessionPtr->ClearOnFindSessionsCompleteDelegates(this);
 		for (FOnlineSessionSearchResult Result : SessionSearch->SearchResults)
 		{
 			if (Result.IsValid())
@@ -108,9 +113,10 @@ void UWellGameInstance::OnFindSessionsComplete(bool bSuccess)
 
 void UWellGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
-	if (const IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld()))
+	if (const IOnlineSessionPtr OnlineSessionPtr = Online::GetSessionInterface(GetWorld()))
 	{
-		const IOnlineSessionPtr OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
+		OnlineSessionPtr->ClearOnJoinSessionCompleteDelegates(this);
+		
 		if (Result == EOnJoinSessionCompleteResult::Success && GetWorld())
 		{
 			const auto ClientController = GetWorld()->GetFirstPlayerController();

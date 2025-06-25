@@ -127,3 +127,16 @@ public:
 	FName DisplayName = NAME_None;
 	
 };
+
+USTRUCT(BlueprintType)
+struct FGameplayMessage_IntData
+{
+	GENERATED_BODY()
+	
+	FGameplayMessage_IntData() { }
+
+	explicit FGameplayMessage_IntData(int32 InValue) : Value(InValue) { }
+	
+	UPROPERTY(BlueprintReadOnly)
+	int32 Value = 0;
+};

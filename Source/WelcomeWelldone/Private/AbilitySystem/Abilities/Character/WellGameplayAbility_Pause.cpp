@@ -15,14 +15,16 @@ void UWellGameplayAbility_Pause::ActivateAbility(const FGameplayAbilitySpecHandl
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	APlayerController* PlayerController = ActorInfo->PlayerController.Get();
-	const auto GameHUD = GetGameHUDFromPlayerController(PlayerController);
-	check(GameHUD);
-	GameHUD->PushToLayers(PauseWidgetClass);
+	if (PlayerController && PlayerController->IsLocalController())
+	{
+		const auto GameHUD = GetGameHUDFromPlayerController(PlayerController);
+		check(GameHUD);
+		GameHUD->PushToLayers(PauseWidgetClass);
 
-	const FInputModeUIOnly InputMode;
-	PlayerController->SetInputMode(InputMode);
-	PlayerController->SetShowMouseCursor(true);
-	
+		const FInputModeUIOnly InputMode;
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->SetShowMouseCursor(true);
+	}
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
