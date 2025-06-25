@@ -27,6 +27,7 @@ namespace WellGameplayTags
 
 	/** Event Tags **/
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Event_Reload, "Event.Reload");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Event_Equip, "Event.Equip");
 
 	/** Message Tags **/
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Attribute, "Message.Attribute");

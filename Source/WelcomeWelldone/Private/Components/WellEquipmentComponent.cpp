@@ -6,6 +6,7 @@
 #include "Objects/Equipment/Profiles/WellEquipmentProfile.h"
 #include "Objects/Equipment/Instances/WellEquipmentInstance.h"
 #include "Net/UnrealNetwork.h"
+#include "Net/Core/PushModel/PushModel.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellEquipmentComponent)
 
@@ -81,7 +82,8 @@ UWellEquipmentInstance* UWellEquipmentComponent::AddEntry_ByEquipmentProfile(con
 void UWellEquipmentComponent::TryToEquipEntry_ByHandle_Implementation(int32 Handle)
 {
 	if (!CanEquip(Handle)) return;
-	
+
+	PreviousHandle = GetFirstEquippedHandle();
 	if (bIsCharacterEquipped)
 	{
 		/* If character try to equip the same entry */
@@ -92,9 +94,14 @@ void UWellEquipmentComponent::TryToEquipEntry_ByHandle_Implementation(int32 Hand
 		/* If character try to equip other entry */
 		else
 		{
+			const float UnequipPlayRate = GetFirstEquippedInstance() ? GetFirstEquippedInstance()->GetUnequipPlayRate() : 1.f;
 			UnequipEntry_ByHandle(GetFirstEquippedHandle());
-			EquipEntry_ByHandle(Handle);
-			EventID++;
+			
+			GetWorld()->GetTimerManager().SetTimer(PlayRateTimerHandle, FTimerDelegate::CreateLambda([this, Handle]()
+			{
+				EquipEntry_ByHandle(Handle);
+				GetWorld()->GetTimerManager().ClearTimer(PlayRateTimerHandle);
+			}), UnequipPlayRate, false);
 		}
 	}
 	else
@@ -110,7 +117,7 @@ void UWellEquipmentComponent::EquipEntry_ByHandle(int32 Handle)
 	if (Entry.IsValid())
 	{
 		Entry.Instance->OnEquipped(Entry.GetProfilePtr());
-		bIsCharacterEquipped = true;
+		SetIsCharacterEquipped(true);
 	}
 }
 
@@ -120,7 +127,7 @@ void UWellEquipmentComponent::UnequipEntry_ByHandle(int32 Handle)
 	if (Entry.IsValid())
 	{
 		Entry.Instance->OnUneqipped(Entry.GetProfilePtr());
-		bIsCharacterEquipped = false;
+		SetIsCharacterEquipped(false);
 	}
 }
 
@@ -136,14 +143,18 @@ void UWellEquipmentComponent::OnRep_bIsCharacterEquipped()
 	}
 	else
 	{
-		for (const FEquipmentEntry& Entry : EquipmentEntries.EntriesStorage)
+		const FEquipmentEntry& Entry = EquipmentEntries[PreviousHandle];
+		if (Entry.IsValid())
 		{
-			if (Entry.IsValid())
-			{
-				Entry.Instance->OnUneqipped(Entry.GetProfilePtr());
-			}
+			Entry.Instance->OnUneqipped(Entry.GetProfilePtr());
 		}
 	}
+}
+
+void UWellEquipmentComponent::SetIsCharacterEquipped(const bool bIsEquipped)
+{
+	bIsCharacterEquipped = bIsEquipped;
+	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bIsCharacterEquipped, this);
 }
 
 UWellEquipmentInstance* UWellEquipmentComponent::GetFirstEquippedInstance() const
@@ -183,8 +194,11 @@ void UWellEquipmentComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(ThisClass, EquipmentEntries);
-	DOREPLIFETIME(ThisClass, EventID);
-	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, bIsCharacterEquipped, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME(ThisClass, PreviousHandle);
+
+	FDoRepLifetimeParams RepLifetimeParams;
+	RepLifetimeParams.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, bIsCharacterEquipped, RepLifetimeParams);
 }
 
 bool UWellEquipmentComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)

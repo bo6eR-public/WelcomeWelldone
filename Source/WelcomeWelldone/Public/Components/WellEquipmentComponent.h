@@ -27,7 +27,7 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UWellEquipmentInstance> Instance = nullptr;
 
-	UPROPERTY(Transient, NotReplicated)
+	UPROPERTY()
 	int32 Handle = 0;
 	
 };
@@ -101,6 +101,12 @@ public:
 
 	bool CanEquip(int32 Handle) const;
 
+	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Try To Equip By Key"))
+	inline void BP_TryToEquipEntry_ByHandle(int32 Key)
+	{
+		TryToEquipEntry_ByHandle(Key);
+	}
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
@@ -112,6 +118,8 @@ private:
 
 	UFUNCTION()
 	void OnRep_bIsCharacterEquipped();
+
+	void SetIsCharacterEquipped(bool bIsEquipped);
 	
 private:
 	UPROPERTY(Replicated)
@@ -120,7 +128,9 @@ private:
 	UPROPERTY(ReplicatedUsing=OnRep_bIsCharacterEquipped, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
     bool bIsCharacterEquipped = false;
 
-	UPROPERTY(ReplicatedUsing=OnRep_bIsCharacterEquipped)
-	/* For force replication of intances */
-	int EventID = 0; // @TODO: replace for "Push Model"?
+	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	int32 PreviousHandle;
+
+	UPROPERTY()
+	FTimerHandle PlayRateTimerHandle;
 };

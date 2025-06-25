@@ -7,6 +7,8 @@ public class WelcomeWelldoneTarget : TargetRules
 {
 	public WelcomeWelldoneTarget(TargetInfo Target) : base(Target)
 	{
+		bWithPushModel = true;
+		
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;

@@ -33,6 +33,7 @@ public:
 	void BP_LinkAnimLayers(TSubclassOf<UAnimInstance> LinkedInstance);
 
 	inline bool IsEquipped() const { return bIsEquipped; };
+	inline float GetUnequipPlayRate() const;
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;

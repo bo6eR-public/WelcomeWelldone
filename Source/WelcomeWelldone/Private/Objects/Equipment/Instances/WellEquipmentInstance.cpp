@@ -73,6 +73,11 @@ void UWellEquipmentInstance::OnUneqipped(const UWellEquipmentProfile* OwningProf
 	}
 }
 
+float UWellEquipmentInstance::GetUnequipPlayRate() const
+{
+	 return UnequipMontage->CalculateSequenceLength();
+}
+
 void UWellEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	UObject::GetLifetimeReplicatedProps(OutLifetimeProps);

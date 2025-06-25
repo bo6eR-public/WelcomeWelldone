@@ -10,7 +10,6 @@
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Attributes/WellAttributeSet_Core.h"
-#include "Components/WellEquipmentComponent.h"
 #include "Runtime/GameplayMessageSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerCharacter)
@@ -140,18 +139,18 @@ void AWellPlayerCharacter::Look(const FInputActionValue& Value)
 
 void AWellPlayerCharacter::Optional1(const FInputActionValue& Value)
 {
-	if (EquipmentComponent != nullptr)
-	{
-		EquipmentComponent->TryToEquipEntry_ByHandle(0);
-	}
+	FGameplayEventData Payload;
+	Payload.EventMagnitude = 0;
+		
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_Equip, Payload);
 }
 
 void AWellPlayerCharacter::Optional2(const FInputActionValue& Value)
 {
-	if (EquipmentComponent != nullptr)
-	{
-		EquipmentComponent->TryToEquipEntry_ByHandle(1);
-	}
+	FGameplayEventData Payload;
+	Payload.EventMagnitude = 1;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_Equip, Payload);
 }
 
 UEnhancedInputLocalPlayerSubsystem* AWellPlayerCharacter::GetInputSubSystem() const
