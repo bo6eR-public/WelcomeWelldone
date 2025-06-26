@@ -7,6 +7,7 @@ public class WelcomeWelldoneTarget : TargetRules
 {
 	public WelcomeWelldoneTarget(TargetInfo Target) : base(Target)
 	{
+		bOverrideBuildEnvironment = true;
 		bWithPushModel = true;
 		
 		Type = TargetType.Game;

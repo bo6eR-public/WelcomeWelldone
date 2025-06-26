@@ -50,7 +50,6 @@ void UWellGameInstance::Server_CreateSession_Implementation()
 			SessionSettings.Set(UniqueSessionName, UniqueSessionPassword, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 			
 			OnlineSessionPtr->CreateSession(*GetLocalPlayer()->GetPreferredUniqueNetId(), NAME_GameSession, SessionSettings);
-			OnlineSessionPtr->UpdateSession(NAME_GameSession, SessionSettings, true);
 		}
 	}
 }
@@ -59,17 +58,18 @@ void UWellGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess
 {
 	if(const IOnlineSessionPtr OnlineSessionPtr =  Online::GetSessionInterface(GetWorld()))
 	{
-		OnlineSessionPtr->ClearOnCreateSessionCompleteDelegates(this);
-		if (bSuccessful && OnlineSessionPtr->StartSession(NAME_GameSession))
+		FDelegateHandle OnCreateSessionCompleteDelegateHandle = OnCreateSessionCompleteDelegate.GetHandle();
+		OnlineSessionPtr->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
+		if (bSuccessful)
 		{
 			GetWorld()->ServerTravel(TEXT("/Game/Levels/Maps/LV_Lobby?listen"), true);
 		}
 	}
 }
 
-void UWellGameInstance::ServerTravel_Implementation(const FString& URL)
+void UWellGameInstance::ServerTravel_Implementation(const FString& URL, const bool bAbsolute)
 {
-	GetWorld()->ServerTravel(URL + "?listen", true);
+	GetWorld()->ServerTravel(URL + "?listen", bAbsolute);
 }
 
 void UWellGameInstance::FindSession()
@@ -92,7 +92,8 @@ void UWellGameInstance::OnFindSessionsComplete(bool bSuccess)
 	const IOnlineSessionPtr OnlineSessionPtr = Online::GetSessionInterface(GetWorld());
 	if (bSuccess && OnlineSessionPtr)
 	{
-		OnlineSessionPtr->ClearOnFindSessionsCompleteDelegates(this);
+		FDelegateHandle FindSessionsCompleteDelegateHandle = OnFindSessionsCompleteDelegate.GetHandle();
+		OnlineSessionPtr->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
 		for (FOnlineSessionSearchResult Result : SessionSearch->SearchResults)
 		{
 			if (Result.IsValid())
@@ -115,7 +116,8 @@ void UWellGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 {
 	if (const IOnlineSessionPtr OnlineSessionPtr = Online::GetSessionInterface(GetWorld()))
 	{
-		OnlineSessionPtr->ClearOnJoinSessionCompleteDelegates(this);
+		FDelegateHandle JoinSessionCompleteDelegateHandle = OnJoinSessionCompleteDelegate.GetHandle();
+		OnlineSessionPtr->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
 		
 		if (Result == EOnJoinSessionCompleteResult::Success && GetWorld())
 		{
@@ -128,6 +130,14 @@ void UWellGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("JOIn %s"), *ConnectionInfo));
 			}
 		}
+	}
+}
+
+void UWellGameInstance::DestroySession() const
+{
+	if (const IOnlineSessionPtr OnlineSessionPtr = Online::GetSessionInterface(GetWorld()))
+	{
+		OnlineSessionPtr->DestroySession(NAME_GameSession);
 	}
 }
 

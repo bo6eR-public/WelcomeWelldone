@@ -32,10 +32,13 @@ public:
 	void Server_CreateSession();
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category="Game|Sessions")
-	void ServerTravel(const FString& URL);
+	void ServerTravel(const FString& URL, const bool bAbsolute = true);
 
 	UFUNCTION(BlueprintCallable, Category="Game|Sessions")
 	void FindSession();
+
+	UFUNCTION(BlueprintCallable, Category="Game|Sessions")
+	void DestroySession() const;
 
 	UFUNCTION(Exec, BlueprintCallable, Category="Game|Exit")
 	virtual void Exit() final;
