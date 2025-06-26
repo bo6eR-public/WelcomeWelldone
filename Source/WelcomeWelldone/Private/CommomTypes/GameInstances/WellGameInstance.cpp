@@ -3,10 +3,13 @@
 
 #include "CommomTypes/GameInstances/WellGameInstance.h"
 #include "Online/OnlineSessionNames.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSessionSettings.h"
 #include "AbilitySystemGlobals.h"
 #include "OnlineSubsystemUtils.h"
-#include "Online.h"
+#include "CommomTypes/WellCommonTypes.h"
+#include "Kismet/GameplayStatics.h"
+#include "Runtime/GameplayMessageSubsystem.h"
 
 UWellGameInstance::UWellGameInstance(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer), OnCreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
@@ -25,7 +28,7 @@ void UWellGameInstance::Init()
 
 void UWellGameInstance::Server_CreateSession_Implementation()
 {
-	if (const IOnlineSessionPtr OnlineSessionPtr =  Online::GetSessionInterface(GetWorld()))
+	if (const IOnlineSessionPtr OnlineSessionPtr = Online::GetSessionInterface(GetWorld()))
 	{
 		if (OnlineSessionPtr->GetNamedSession(NAME_GameSession))
 		{
@@ -38,14 +41,16 @@ void UWellGameInstance::Server_CreateSession_Implementation()
 			OnlineSessionPtr->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
 
 			FOnlineSessionSettings SessionSettings;
-			SessionSettings.bIsLANMatch = false;
-			SessionSettings.bAllowJoinInProgress = true;
+			SessionSettings.NumPrivateConnections = 0;
 			SessionSettings.NumPublicConnections = 2;
+			SessionSettings.bAllowInvites = true;
+			SessionSettings.bAllowJoinInProgress = true;
 			SessionSettings.bAllowJoinViaPresence = true;
-			SessionSettings.bUsesPresence = true;
-			SessionSettings.bShouldAdvertise = true;
-			SessionSettings.bUseLobbiesIfAvailable = true;
+			SessionSettings.bAllowJoinViaPresenceFriendsOnly = true;
 			SessionSettings.bIsDedicated = false;
+			SessionSettings.bUsesPresence = true;
+			SessionSettings.bIsLANMatch = true;
+			SessionSettings.bShouldAdvertise = true;
 
 			SessionSettings.Set(UniqueSessionName, UniqueSessionPassword, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 			
@@ -60,9 +65,10 @@ void UWellGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess
 	{
 		FDelegateHandle OnCreateSessionCompleteDelegateHandle = OnCreateSessionCompleteDelegate.GetHandle();
 		OnlineSessionPtr->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
-		if (bSuccessful)
+		if (bSuccessful && GetWorld())
 		{
-			GetWorld()->ServerTravel(TEXT("/Game/Levels/Maps/LV_Lobby?listen"), true);
+			// ServerTravel(TEXT("/Game/Levels/Maps/LV_Lobby"));
+			UGameplayStatics::OpenLevel(GetWorld(), "LV_Lobby", true, "listen");
 		}
 	}
 }
@@ -70,6 +76,7 @@ void UWellGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess
 void UWellGameInstance::ServerTravel_Implementation(const FString& URL, const bool bAbsolute)
 {
 	GetWorld()->ServerTravel(URL + "?listen", bAbsolute);
+	//UGameplayStatics::OpenLevel(GetWorld(), "NewMap", true, "listen");
 }
 
 void UWellGameInstance::FindSession()
@@ -79,11 +86,17 @@ void UWellGameInstance::FindSession()
 		OnlineSessionPtr->AddOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegate);
 
 		SessionSearch = MakeShareable(new FOnlineSessionSearch());
-		SessionSearch->bIsLanQuery = false;
-		SessionSearch->MaxSearchResults = 250;
+		SessionSearch->bIsLanQuery = true;
+		SessionSearch->MaxSearchResults = 25;
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 		OnlineSessionPtr->FindSessions(*GetLocalPlayer()->GetPreferredUniqueNetId(), SessionSearch.ToSharedRef());
+		
+		if (UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld()))
+		{
+			MessageBusSubsystem->BroadcastMessage<FGameplayMessage_BoolData>(FGameplayTag::RequestGameplayTag("Message.Sessions.Finding"),
+				FGameplayMessage_BoolData(true));
+		}
 	}
 }
 
@@ -109,6 +122,11 @@ void UWellGameInstance::OnFindSessionsComplete(bool bSuccess)
 				}
 			}
 		}
+		if (UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetWorld()))
+		{
+			MessageBusSubsystem->BroadcastMessage<FGameplayMessage_BoolData>(FGameplayTag::RequestGameplayTag("Message.Sessions.Finding"),
+				FGameplayMessage_BoolData(false));
+		}
 	}
 }
 
@@ -118,14 +136,15 @@ void UWellGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 	{
 		FDelegateHandle JoinSessionCompleteDelegateHandle = OnJoinSessionCompleteDelegate.GetHandle();
 		OnlineSessionPtr->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
-		
+
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Result %d"), Result));
 		if (Result == EOnJoinSessionCompleteResult::Success && GetWorld())
 		{
 			const auto ClientController = GetWorld()->GetFirstPlayerController();
 			if (ClientController && OnlineSessionPtr.IsValid())
 			{
 				FString ConnectionInfo;
-				OnlineSessionPtr->GetResolvedConnectString(NAME_GameSession, ConnectionInfo);
+				if (!OnlineSessionPtr->GetResolvedConnectString(NAME_GameSession, ConnectionInfo)) return;
 				ClientController->ClientTravel(ConnectionInfo, TRAVEL_Absolute);
 				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("JOIn %s"), *ConnectionInfo));
 			}
@@ -137,7 +156,11 @@ void UWellGameInstance::DestroySession() const
 {
 	if (const IOnlineSessionPtr OnlineSessionPtr = Online::GetSessionInterface(GetWorld()))
 	{
-		OnlineSessionPtr->DestroySession(NAME_GameSession);
+		const FNamedOnlineSession* NamedSession = OnlineSessionPtr->GetNamedSession(NAME_GameSession);
+		if (NamedSession != nullptr)
+		{
+			OnlineSessionPtr->DestroySession(NAME_GameSession);
+		}
 	}
 }
 
@@ -152,6 +175,7 @@ void UWellGameInstance::Exit()
 	{
 		if (const auto ClientController = World->GetFirstPlayerController())
 		{
+			DestroySession();
 			ClientController->ConsoleCommand(FString::Printf(TEXT("quit")));
 		}
 	}

@@ -6,7 +6,7 @@
 #include "Objects/Equipment/Profiles/WellEquipmentProfile.h"
 #include "Objects/Equipment/Instances/WellEquipmentInstance.h"
 #include "Net/UnrealNetwork.h"
-#include "Net/Core/PushModel/PushModel.h"
+//#include "Net/Core/PushModel/PushModel.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellEquipmentComponent)
 
@@ -63,7 +63,21 @@ UWellEquipmentComponent::UWellEquipmentComponent(const FObjectInitializer& Objec
 	SetIsReplicatedByDefault(true);
 }
 
-UWellEquipmentInstance* UWellEquipmentComponent::AddEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
+UWellEquipmentInstance* UWellEquipmentComponent::AddEntry_ByEquipmentProfiles(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
+{
+	FEquipmentEntry& ResultEntry = EquipmentEntries.AddEntry(EquipmentProfile);
+	if (ResultEntry.IsValid())
+	{
+		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
+		{
+			AddReplicatedSubObject(ResultEntry.Instance);
+		}
+		return ResultEntry.Instance;
+	}
+	return nullptr;
+}
+
+UWellEquipmentInstance* UWellEquipmentComponent::EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile)
 {
 	FEquipmentEntry& ResultEntry = EquipmentEntries.AddEntry(EquipmentProfile);
 	if (ResultEntry.IsValid())
@@ -154,7 +168,7 @@ void UWellEquipmentComponent::OnRep_bIsCharacterEquipped()
 void UWellEquipmentComponent::SetIsCharacterEquipped(const bool bIsEquipped)
 {
 	bIsCharacterEquipped = bIsEquipped;
-	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bIsCharacterEquipped, this);
+	//MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bIsCharacterEquipped, this);
 }
 
 UWellEquipmentInstance* UWellEquipmentComponent::GetFirstEquippedInstance() const
@@ -196,9 +210,12 @@ void UWellEquipmentComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeP
 	DOREPLIFETIME(ThisClass, EquipmentEntries);
 	DOREPLIFETIME(ThisClass, PreviousHandle);
 
+	/*
 	FDoRepLifetimeParams RepLifetimeParams;
 	RepLifetimeParams.bIsPushBased = true;
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, bIsCharacterEquipped, RepLifetimeParams);
+	*/
+	DOREPLIFETIME(ThisClass, bIsCharacterEquipped);
 }
 
 bool UWellEquipmentComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)

@@ -33,4 +33,5 @@ namespace WellGameplayTags
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Attribute, "Message.Attribute");
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Instance_Weapon, "Message.Instance.Weapon");
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Countdown, "Message.Countdown");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Sessions_Finding, "Message.Sessions.Finding");
 }

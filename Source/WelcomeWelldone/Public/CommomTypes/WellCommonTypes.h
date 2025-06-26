@@ -140,3 +140,16 @@ struct FGameplayMessage_IntData
 	UPROPERTY(BlueprintReadOnly)
 	int32 Value = 0;
 };
+
+USTRUCT(BlueprintType)
+struct FGameplayMessage_BoolData
+{
+	GENERATED_BODY()
+	
+	FGameplayMessage_BoolData() { }
+
+	explicit FGameplayMessage_BoolData(bool InValue) : Value(InValue) { }
+	
+	UPROPERTY(BlueprintReadOnly)
+	bool Value = false;
+};

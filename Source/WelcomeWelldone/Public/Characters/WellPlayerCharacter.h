@@ -24,6 +24,9 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PossessedBy(AController* NewController) override;
 
+	virtual void BeginPlay() override;
+	virtual void OnRep_PlayerState() override;
+
 private:
 	//~ Begin of input handles
 	void Move(const FInputActionValue& Value);

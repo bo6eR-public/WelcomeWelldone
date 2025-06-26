@@ -104,6 +104,20 @@ void AWellPlayerCharacter::PossessedBy(AController* NewController)
 	}
 }
 
+void AWellPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	/* Equips the first entry for a listen server */
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_Equip, FGameplayEventData());
+}
+
+void AWellPlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	/* Equips the first entry for a client */
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_Equip, FGameplayEventData());
+}
+
 void AWellPlayerCharacter::Move(const FInputActionValue& Value)
 {
 	if (Controller == nullptr) return;

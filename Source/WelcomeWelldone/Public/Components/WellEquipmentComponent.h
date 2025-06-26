@@ -89,8 +89,11 @@ class WELCOMEWELLDONE_API UWellEquipmentComponent : public UActorComponent
 public:
 	UWellEquipmentComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Add Entry"))
+	UWellEquipmentInstance* AddEntry_ByEquipmentProfiles(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
+	
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Equip, meta=(DisplayName="Equip Entry With Adding"))
-	UWellEquipmentInstance* AddEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
+	UWellEquipmentInstance* EquipEntry_ByEquipmentProfile(const TSubclassOf<UWellEquipmentProfile>& EquipmentProfile);
 
 	UFUNCTION(Server, Reliable)
 	void TryToEquipEntry_ByHandle(int32 Handle);
@@ -102,7 +105,7 @@ public:
 	bool CanEquip(int32 Handle) const;
 
 	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Try To Equip By Key"))
-	inline void BP_TryToEquipEntry_ByHandle(int32 Key)
+	FORCEINLINE void BP_TryToEquipEntry_ByHandle(int32 Key)
 	{
 		TryToEquipEntry_ByHandle(Key);
 	}
@@ -126,7 +129,7 @@ private:
 	FEquipmentStorage EquipmentEntries;
 	
 	UPROPERTY(ReplicatedUsing=OnRep_bIsCharacterEquipped, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-    bool bIsCharacterEquipped = false;
+    bool bIsCharacterEquipped;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	int32 PreviousHandle;
