@@ -28,7 +28,8 @@ void AWellPickuppable::OnCollisionVolumeOverlapped(UPrimitiveComponent* Overlapp
 		if (OtherActor->GetClass()->ImplementsInterface(UAbilitySystemInterface::StaticClass()))
 		{
 			Spawner->GiveAbility(PickuUpAbility, OtherActor);
-			Destroy();
+			SetVisibility(false);
+			StartSpawnDelay();
 		}
 	}
 }
@@ -48,9 +49,29 @@ void AWellPickuppable::Tick(float DeltaTime)
 	DisplayMesh->AddRelativeRotation(FRotator(0.0f, GetWorld()->GetDeltaSeconds() * RotationSpeed, 0.0f));
 }
 
-void AWellPickuppable::InitializePickuppable(AWellSpawner* NewSpawnerController)
+void AWellPickuppable::InitializePickuppable(AWellSpawner* NewSpawnerController, TSubclassOf<UGameplayAbility> Ability)
 {
 	Spawner = NewSpawnerController;
+	PickuUpAbility = Ability;
+}
+
+void AWellPickuppable::SetVisibility_Implementation(const bool Visibility)
+{
+	CollisionVolume->SetVisibility(Visibility);
+	DisplayMesh->SetVisibility(Visibility);
+}
+
+void AWellPickuppable::StartSpawnDelay_Implementation()
+{
+	GetWorld()->GetTimerManager().SetTimer(SpawnDelayTimerHandle, FTimerDelegate::CreateLambda([this]()
+	{
+		SetVisibility(true);
+		GetWorld()->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
+		if (HasAuthority())
+		{
+			PickuUpAbility = Spawner->GetAbilityClass();
+		}
+	}), SpawnDelay, false);
 }
 
 void AWellPickuppable::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -60,4 +81,3 @@ void AWellPickuppable::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	DOREPLIFETIME(ThisClass, Spawner);
 	DOREPLIFETIME(ThisClass, DisplayMesh);
 }
-

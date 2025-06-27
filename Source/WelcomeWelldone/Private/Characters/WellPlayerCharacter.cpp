@@ -149,11 +149,6 @@ void AWellPlayerCharacter::Look(const FInputActionValue& Value)
 	{
 		AddControllerPitchInput(-LookAxis.Y);
 	}
-	if (HasAuthority())
-	{
-		/* Replicate the character rotation */
-		Server_SetCameraPitchRotation(-LookAxis.Y);
-	}
 }
 
 void AWellPlayerCharacter::Optional1(const FInputActionValue& Value)

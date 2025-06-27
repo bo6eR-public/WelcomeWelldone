@@ -2,7 +2,6 @@
 
 
 #include "Objects/Actors/WellSpawner.h"
-
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Engine/AssetManager.h"
@@ -45,22 +44,30 @@ UMaterialInterface* AWellSpawner::RequestSyncLoadMaterial() const
 	return nullptr;
 }
 
+TSubclassOf<UGameplayAbility> AWellSpawner::GetAbilityClass() const
+{
+	if (PickUpAbilities.IsEmpty()) return nullptr;
+
+	const int RandomIndex = FMath::RandHelper(PickUpAbilities.Num());
+	return PickUpAbilities[RandomIndex];
+}
+
 void AWellSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		if (!PickupTransforms.IsEmpty() && !PickupItemsClasses.IsEmpty())
+		if (!PickupTransforms.IsEmpty() && !PickUpAbilities.IsEmpty())
 		{
 			for (const FTransform Position : PickupTransforms)
 			{
-				const int RandIndex = FMath::RandHelper(PickupItemsClasses.Num());
-				AWellPickuppable* NewPickUp = GetWorld()->SpawnActor<AWellPickuppable>(PickupItemsClasses[RandIndex], Position.GetLocation(), Position.Rotator());
+				const int RandIndex = FMath::RandHelper(PickUpAbilities.Num());
+				AWellPickuppable* NewPickUp = GetWorld()->SpawnActor<AWellPickuppable>(PickupItemDef, Position.GetLocation(), Position.Rotator());
 				if (NewPickUp != nullptr)
 				{
 					SpawnedPickupActors.Add(NewPickUp);
-					NewPickUp->InitializePickuppable(this);
+					NewPickUp->InitializePickuppable(this, PickUpAbilities[RandIndex]);
 				}
 			}
 		}

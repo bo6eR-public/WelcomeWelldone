@@ -15,7 +15,11 @@ public:
 	AWellPickuppable();
 	virtual void Tick(float DeltaTime) override;
 
-	void InitializePickuppable(class AWellSpawner* NewSpawnerController);
+	void InitializePickuppable(class AWellSpawner* NewSpawnerController, TSubclassOf<class UGameplayAbility> Ability);
+	UFUNCTION(NetMulticast, Reliable)
+	void SetVisibility(bool Visibility);
+	UFUNCTION(NetMulticast, Reliable)
+	void StartSpawnDelay();
 	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -30,12 +34,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Settings, meta=(ClampMin="0.0", UIMin="0.0"))
 	float RotationSpeed = 10.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Ability)
+	UPROPERTY(ReplicatedUsing=OnRep_Spawner, BlueprintReadOnly, Category=Ability)
 	TSubclassOf<class UGameplayAbility> PickuUpAbility = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Pickup)
+	float SpawnDelay = 10.f;
 
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_Spawner)
 	TObjectPtr<AWellSpawner> Spawner = nullptr;
+
+	UPROPERTY()
+	FTimerHandle SpawnDelayTimerHandle;
 
 private:
 	UFUNCTION()

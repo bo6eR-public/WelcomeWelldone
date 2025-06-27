@@ -18,17 +18,21 @@ public:
 	void GiveAbility(const TSubclassOf<class UGameplayAbility>& Ability, AActor* TargetActor, int32 Level = 0);
 	UMaterialInterface* RequestSyncLoadMaterial() const;
 
+	TSubclassOf<UGameplayAbility> GetAbilityClass() const;
+
 protected:
 	virtual void BeginPlay() override;
-	
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Materials, meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Pickup, meta=(AllowPrivateAccess=true))
+	TSubclassOf<class AWellPickuppable> PickupItemDef;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Pickup, meta=(AllowPrivateAccess=true))
 	TArray<FTransform> PickupTransforms;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Materials, meta=(AllowPrivateAccess=true))
-	TArray<TSubclassOf<class AWellPickuppable>> PickupItemsClasses;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Pickup, meta=(AllowPrivateAccess=true))
+	TArray<TSubclassOf<UGameplayAbility>> PickUpAbilities;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Materials, meta=(AllowPrivateAccess=true))
 	TArray<TSoftObjectPtr<UMaterialInterface>> DisplayMaterials;
