@@ -1,0 +1,47 @@
+﻿// Copyright © 2025 bo6eR. All rights reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "WellPickuppable.generated.h"
+
+UCLASS()
+class WELCOMEWELLDONE_API AWellPickuppable : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	AWellPickuppable();
+	virtual void Tick(float DeltaTime) override;
+
+	void InitializePickuppable(class AWellSpawner* NewSpawnerController);
+	
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Components)
+	TObjectPtr<class USphereComponent> CollisionVolume = nullptr;
+
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category=Components)
+	TObjectPtr<UStaticMeshComponent> DisplayMesh = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Settings, meta=(ClampMin="0.0", UIMin="0.0"))
+	float RotationSpeed = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Ability)
+	TSubclassOf<class UGameplayAbility> PickuUpAbility = nullptr;
+
+private:
+	UPROPERTY(ReplicatedUsing=OnRep_Spawner)
+	TObjectPtr<AWellSpawner> Spawner = nullptr;
+
+private:
+	UFUNCTION()
+	void OnCollisionVolumeOverlapped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
+
+	UFUNCTION()
+	void OnRep_Spawner();
+	
+};
