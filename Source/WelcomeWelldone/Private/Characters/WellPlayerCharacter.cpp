@@ -74,6 +74,7 @@ void AWellPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Native_Optional1, ETriggerEvent::Triggered, this, &ThisClass::Optional1);
 		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Native_Optional2, ETriggerEvent::Triggered, this, &ThisClass::Optional2);
+		EnhancedInputComponent->BindNativeInputAction(InputConfig, WellGameplayTags::Input_Native_Optional3, ETriggerEvent::Triggered, this, &ThisClass::Optional3);
 	}
 }
 
@@ -163,6 +164,14 @@ void AWellPlayerCharacter::Optional2(const FInputActionValue& Value)
 {
 	FGameplayEventData Payload;
 	Payload.EventMagnitude = 1;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_Equip, Payload);
+}
+
+void AWellPlayerCharacter::Optional3(const FInputActionValue& Value)
+{
+	FGameplayEventData Payload;
+	Payload.EventMagnitude = 2;
 	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_Equip, Payload);
 }

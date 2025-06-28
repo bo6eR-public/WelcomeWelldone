@@ -42,7 +42,7 @@ public:
 	explicit FEquipmentStorage(UActorComponent* InOwningComponent)
 	{
 		OwningComponent = InOwningComponent;
-		EntriesStorage.Reserve(2);
+		EntriesStorage.Reserve(3);
 	}
 	
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)

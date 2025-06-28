@@ -12,6 +12,7 @@ namespace WellGameplayTags
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Run, "Input.Native.Run");
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Optional1, "Input.Native.Optional1");
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Optional2, "Input.Native.Optional2");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Optional3, "Input.Native.Optional3");
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Input_Native_Pause, "Input.Native.Pause");
 
 	//~ Weapon Input Tags ~//

@@ -34,6 +34,7 @@ private:
 
 	void Optional1(const FInputActionValue& Value);
 	void Optional2(const FInputActionValue& Value);
+	void Optional3(const FInputActionValue& Value);
 	//~ End of input handles
 
 	class UEnhancedInputLocalPlayerSubsystem* GetInputSubSystem() const;
