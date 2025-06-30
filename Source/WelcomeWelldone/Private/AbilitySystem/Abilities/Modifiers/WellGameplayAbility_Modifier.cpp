@@ -2,6 +2,8 @@
 
 
 #include "AbilitySystem/Abilities/Modifiers/WellGameplayAbility_Modifier.h"
+
+#include "AbilitySystemComponent.h"
 #include "CommomTypes/WellCommonTypes.h"
 #include "Runtime/GameplayMessageSubsystem.h"
 
@@ -27,4 +29,20 @@ void UWellGameplayAbility_Modifier::BroadcastModifierStatusMessage(const EModifi
 	{
 		MessageSubsystem->BroadcastMessage<FGameplayMessage_ModifierChanged>(FGameplayTag::RequestGameplayTag("Message.Modifier"), FGameplayMessage_ModifierChanged(DisplayName, ConvertedStatus));
 	}
+}
+
+EModifierStatus UWellGameplayAbility_Modifier::UpdateModifierStatus(UGameplayAbility*& AlreadyActivatedAbility)
+{
+	if (const auto AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo())
+	{
+		for (FGameplayAbilitySpec AbilitySpec : AbilitySystemComponent->GetActivatableAbilities())
+		{
+			if (AbilitySpec.Ability.GetClass() == GetClass() && AbilitySpec.Handle != GetCurrentAbilitySpecHandle())
+			{
+				AlreadyActivatedAbility = AbilitySpec.Ability;
+				return Extended;
+			}
+		}
+	}
+	return Applied;
 }

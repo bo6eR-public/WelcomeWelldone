@@ -54,6 +54,8 @@ void AWellPickuppable::SetVisibility_Implementation(const bool Visibility)
 {
 	CollisionVolume->SetVisibility(Visibility);
 	DisplayMesh->SetVisibility(Visibility);
+
+	CollisionVolume->SetCollisionEnabled(Visibility ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
 }
 
 void AWellPickuppable::StartSpawnDelay()

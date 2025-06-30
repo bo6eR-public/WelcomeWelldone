@@ -27,5 +27,7 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable)
 	void BroadcastModifierStatusMessage(const EModifierStatus& Status) const;
-	
+
+	UFUNCTION(BlueprintCallable)
+	virtual EModifierStatus UpdateModifierStatus(UGameplayAbility*& AlreadyActivatedAbility);
 };
