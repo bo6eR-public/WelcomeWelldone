@@ -4,7 +4,6 @@
 #include "Objects/Actors/WellSpawner.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
-#include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Objects/Actors/PickUp/WellPickuppable.h"
 
@@ -27,21 +26,6 @@ void AWellSpawner::GiveAbility(const TSubclassOf<UGameplayAbility>& Ability, AAc
 		
 		TargetAbilitySystemComponent->GiveAbility(AbilitySpec);
 	}
-}
-
-UMaterialInterface* AWellSpawner::RequestSyncLoadMaterial() const
-{
-	if (DisplayMaterials.IsEmpty()) return nullptr;
-
-	const int RandomIndex = FMath::RandHelper(DisplayMaterials.Num());
-	
-	TSoftObjectPtr<UMaterialInterface> Material = DisplayMaterials[RandomIndex];
-	if (!Material.IsNull())
-	{
-		UMaterialInterface* LoadedMaterial = UAssetManager::GetStreamableManager().LoadSynchronous<UMaterialInterface>(Material.ToSoftObjectPath());
-		return LoadedMaterial;
-	}
-	return nullptr;
 }
 
 TSubclassOf<UGameplayAbility> AWellSpawner::GetAbilityClass() const

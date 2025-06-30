@@ -153,3 +153,19 @@ struct FGameplayMessage_BoolData
 	UPROPERTY(BlueprintReadOnly)
 	bool Value = false;
 };
+
+USTRUCT(BlueprintType)
+struct FGameplayMessage_ModifierChanged
+{
+	GENERATED_BODY()
+	
+	FGameplayMessage_ModifierChanged() { }
+
+	explicit FGameplayMessage_ModifierChanged(FString InValue, FString InStatus) : Name(InValue), Status(InStatus) { }
+	
+	UPROPERTY(BlueprintReadOnly)
+	FString Name = "None";
+
+	UPROPERTY(BlueprintReadOnly)
+	FString Status = "None";
+};

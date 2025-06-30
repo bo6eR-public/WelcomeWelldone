@@ -100,15 +100,15 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	UWellEquipmentInstance* GetFirstEquippedInstance() const;
+	UFUNCTION(BlueprintPure)
 	int32 GetFirstEquippedHandle() const;
+	UFUNCTION(BlueprintPure)
+	UWellEquipmentInstance* GetInstanceByClass(const TSubclassOf<UWellEquipmentInstance>& Class) const;
 
 	bool CanEquip(int32 Handle) const;
 
 	UFUNCTION(BlueprintCallable, Category=Equip, meta=(DisplayName="Try To Equip By Key"))
-	FORCEINLINE void BP_TryToEquipEntry_ByHandle(int32 Key)
-	{
-		TryToEquipEntry_ByHandle(Key);
-	}
+	FORCEINLINE void BP_TryToEquipEntry_ByHandle(int32 Key) { TryToEquipEntry_ByHandle(Key); }
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;

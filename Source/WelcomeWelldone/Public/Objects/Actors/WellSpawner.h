@@ -16,7 +16,6 @@ public:
 	AWellSpawner();
 	
 	void GiveAbility(const TSubclassOf<class UGameplayAbility>& Ability, AActor* TargetActor, int32 Level = 0);
-	UMaterialInterface* RequestSyncLoadMaterial() const;
 
 	TSubclassOf<UGameplayAbility> GetAbilityClass() const;
 
@@ -33,9 +32,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Pickup, meta=(AllowPrivateAccess=true))
 	TArray<TSubclassOf<UGameplayAbility>> PickUpAbilities;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=Materials, meta=(AllowPrivateAccess=true))
-	TArray<TSoftObjectPtr<UMaterialInterface>> DisplayMaterials;
 
 	UPROPERTY(Replicated)
 	TArray<AWellPickuppable*> SpawnedPickupActors;

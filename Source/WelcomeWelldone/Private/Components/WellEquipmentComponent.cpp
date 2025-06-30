@@ -197,6 +197,21 @@ int UWellEquipmentComponent::GetFirstEquippedHandle() const
 	return -1;
 }
 
+UWellEquipmentInstance* UWellEquipmentComponent::GetInstanceByClass(const TSubclassOf<UWellEquipmentInstance>& Class) const
+{
+	for (const FEquipmentEntry& Entry : EquipmentEntries.EntriesStorage)
+	{
+		if (Entry.IsValid())
+		{
+			if (Entry.Instance->IsA(Class))
+			{
+				return Entry.Instance;
+			}
+		}
+	}
+	return nullptr;
+}
+
 bool UWellEquipmentComponent::CanEquip(int32 Handle) const
 {
 	/* If character has one item, but handle calls the second we exit from function */

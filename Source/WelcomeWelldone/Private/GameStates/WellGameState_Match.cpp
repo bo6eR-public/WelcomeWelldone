@@ -5,27 +5,25 @@
 #include "CommomTypes/GameInstances/WellGameInstance.h"
 
 
-void AWellGameState_Match::LeaveSession() const
+void AWellGameState_Match::LeaveSession_Implementation() const
 {
-	Multicast_TravelToMenu_Implementation();
-	
-	if (PlayerArray.Num())
+	if (const auto GameInstance = CastChecked<UWellGameInstance>(GetGameInstance()))
 	{
-		if (const auto GameInstance = CastChecked<UWellGameInstance>(GetGameInstance()))
-		{
-			GameInstance->DestroySession();
-
-			//GameInstance->ServerTravel("/Game/Levels/Maps/LV_Menu");
-			GetWorld()->ServerTravel("/Game/Levels/Maps/LV_Menu?listen", true);
-		}
+		GameInstance->DestroySession();
 	}
+	Multicast_TravelToMenu();
 }
 
 void AWellGameState_Match::Multicast_TravelToMenu_Implementation() const
 {
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (PC && !PC->HasAuthority())
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		PC->ClientTravel("/Game/Levels/Maps/LV_Menu", TRAVEL_Absolute);
+		if (APlayerController* PC = It->Get())
+		{
+			if (const auto GameInstance = CastChecked<UWellGameInstance>(GetGameInstance()))
+			{
+				GameInstance->Exit();
+			}
+		}
 	}
 }

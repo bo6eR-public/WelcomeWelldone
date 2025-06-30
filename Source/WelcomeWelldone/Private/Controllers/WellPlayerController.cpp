@@ -6,6 +6,8 @@
 #include "AbilitySystem/AbilitySystemComponents/WellAbilitySystemComponent.h"
 #include "Characters/WellCharacter.h"
 #include "GameFramework/GameModeBase.h"
+#include "GameStates/WellGameState_Lobby.h"
+#include "GameStates/WellGameState_Match.h"
 #include "Net/UnrealNetwork.h"
 #include "UserInterface/HUDs/WellHUD_Master.h"
 
@@ -47,6 +49,18 @@ void AWellPlayerController::NotifyLoadedWorld(FName WorldPackageName, bool bFina
 
     // Call custom ServerNotifyLoadedWorld
     ServerNotifyLoadedWorldWorkaround(WorldPackageName);
+}
+
+void AWellPlayerController::Server_LeaveSession_Implementation()
+{
+	if (const auto MatchGameState = Cast<AWellGameState_Match>(GetWorld()->GetGameState()))
+	{
+		MatchGameState->LeaveSession();
+	}
+	else if (const auto LobbyGameState = Cast<AWellGameState_Lobby>(GetWorld()->GetGameState()))
+	{
+		LobbyGameState->LeaveSession();
+	}
 }
 
 bool AWellPlayerController::ServerNotifyLoadedWorldWorkaround_Validate(FName WorldPackageName)

@@ -21,6 +21,13 @@ public:
 	UFUNCTION()
 	void StartCountDown();
 
+public:
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category=Sessions)
+	void LeaveSession() const;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_TravelToMenu() const;
+
 private:
 	UFUNCTION()
 	void OnRep_Countdown();

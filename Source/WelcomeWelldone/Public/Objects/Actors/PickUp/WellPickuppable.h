@@ -18,7 +18,7 @@ public:
 	void InitializePickuppable(class AWellSpawner* NewSpawnerController, TSubclassOf<class UGameplayAbility> Ability);
 	UFUNCTION(NetMulticast, Reliable)
 	void SetVisibility(bool Visibility);
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION()
 	void StartSpawnDelay();
 	
 protected:
@@ -34,24 +34,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Settings, meta=(ClampMin="0.0", UIMin="0.0"))
 	float RotationSpeed = 10.f;
 
-	UPROPERTY(ReplicatedUsing=OnRep_Spawner, BlueprintReadOnly, Category=Ability)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category=Ability)
 	TSubclassOf<class UGameplayAbility> PickuUpAbility = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Pickup)
 	float SpawnDelay = 10.f;
 
 private:
-	UPROPERTY(ReplicatedUsing=OnRep_Spawner)
+	UPROPERTY(Replicated)
 	TObjectPtr<AWellSpawner> Spawner = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	FTimerHandle SpawnDelayTimerHandle;
 
 private:
 	UFUNCTION()
 	void OnCollisionVolumeOverlapped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
-
-	UFUNCTION()
-	void OnRep_Spawner();
 	
 };

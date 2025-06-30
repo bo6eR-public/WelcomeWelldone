@@ -13,7 +13,7 @@ class WELCOMEWELLDONE_API AWellGameState_Match : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category=Sessions)
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category=Sessions)
 	void LeaveSession() const;
 
 	UFUNCTION(NetMulticast, Reliable)

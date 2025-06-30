@@ -53,7 +53,7 @@ void UWellEquipmentInstance_Weapon::BroadcastWeaponDataChanges()
 	if (GetOwnerAsCharacter()->IsLocallyControlled())
 	{
 		UGameplayMessageSubsystem* MessageBusSubsystem = &UGameplayMessageSubsystem::Get(GetOwner()->GetWorld());
-		if (MessageBusSubsystem != nullptr)
+		if (MessageBusSubsystem && IsEquipped())
 		{
 			const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag("Message.Instance.Weapon");
 			MessageBusSubsystem->BroadcastMessage(MessageTag, FGameplayMessage_WeaponDataChanged(GetRemainingAmmo(), GetTotalAmmo(), DisplayName));

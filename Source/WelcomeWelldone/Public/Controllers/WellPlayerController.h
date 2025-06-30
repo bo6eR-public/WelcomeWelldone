@@ -22,5 +22,9 @@ protected:
 
 	UFUNCTION(Reliable, Server, WithValidation, SealedEvent)
 	void ServerNotifyLoadedWorldWorkaround(FName WorldPackageName);
+
+public:
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_LeaveSession();
 };
 
