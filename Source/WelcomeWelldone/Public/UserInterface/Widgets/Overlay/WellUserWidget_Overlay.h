@@ -18,5 +18,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category=Attribute)
 	void OnModifierStatusChanged(FGameplayTag Tag, const FGameplayMessage_ModifierChanged& Message);
+
+	UFUNCTION(BlueprintImplementableEvent, Category=Attribute)
+	void OnDeath(FGameplayTag Tag, const FGameplayMessage_BoolData& Message);
 	
 };

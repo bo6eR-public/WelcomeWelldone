@@ -13,5 +13,7 @@ void UWellUserWidget_Overlay::NativeConstruct()
 	if (MessageBusSubsystem != nullptr)
 	{
 		MessageBusSubsystem->RegisterListener(WellGameplayTags::Message_Modifier, this, &ThisClass::OnModifierStatusChanged);
+
+		MessageBusSubsystem->RegisterListener(WellGameplayTags::Message_Death, this, &ThisClass::OnDeath);
 	}
 }

@@ -37,4 +37,5 @@ namespace WellGameplayTags
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Countdown, "Message.Countdown");
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Sessions_Finding, "Message.Sessions.Finding");
 	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Modifier, "Message.Modifier");
+	WELCOMEWELLDONE_API UE_DEFINE_GAMEPLAY_TAG(Message_Death, "Message.Death");
 }

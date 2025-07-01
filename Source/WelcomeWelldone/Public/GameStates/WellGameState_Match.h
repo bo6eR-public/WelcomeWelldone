@@ -18,4 +18,12 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_TravelToMenu() const;
+
+	UFUNCTION(Server, Reliable)
+	void Server_DeathNotify() const;
+	
+private:
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_DeathNotify() const;
+	
 };

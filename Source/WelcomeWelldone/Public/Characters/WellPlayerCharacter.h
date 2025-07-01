@@ -27,6 +27,12 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void OnRep_PlayerState() override;
 
+	UFUNCTION(Server, Reliable)
+	void Server_Death();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_EnableRegdoll();
+
 private:
 	//~ Begin of input handles
 	void Move(const FInputActionValue& Value);

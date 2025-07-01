@@ -10,6 +10,10 @@
 #include "DataAssets/Input/WellInputConfigDataAsset.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Attributes/WellAttributeSet_Core.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameStates/WellGameState_Lobby.h"
+#include "GameStates/WellGameState_Match.h"
 #include "Runtime/GameplayMessageSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WellPlayerCharacter)
@@ -39,6 +43,13 @@ AWellPlayerCharacter::AWellPlayerCharacter(const FObjectInitializer& ObjectIniti
 			{
 				MessageBusSubsystem->BroadcastMessage(WellGameplayTags::Message_Attribute, FGameplayMessage_AttributeChanged(Data.NewValue, Data.OldValue, Data.Attribute.GetName()));
 			}	
+		}
+		if (Data.NewValue <= 0.f)
+		{
+			if (HasAuthority())
+			{
+				Server_Death();
+			}
 		}
 	});
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetBaseAttributeSet()->GetArmorAttribute()).AddLambda
@@ -117,6 +128,27 @@ void AWellPlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 	/* Equips the first entry for a client */
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, WellGameplayTags::Event_Equip, FGameplayEventData());
+}
+
+void AWellPlayerCharacter::Server_Death_Implementation()
+{
+	NetMulticast_EnableRegdoll();
+
+	if (const auto MatchGameState = Cast<AWellGameState_Match>(GetWorld()->GetGameState()))
+	{
+		MatchGameState->Server_DeathNotify();
+	}
+}
+
+void AWellPlayerCharacter::NetMulticast_EnableRegdoll_Implementation()
+{
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+	
+	GetCharacterMovement()->DisableMovement();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	GetMesh()->bBlendPhysics = true;
 }
 
 void AWellPlayerCharacter::Move(const FInputActionValue& Value)
