@@ -3,7 +3,6 @@
 
 #include "Components/WellEquipmentComponent.h"
 #include "Engine/ActorChannel.h"
-#include "Objects/Equipment/Profiles/WellEquipmentProfile.h"
 #include "Objects/Equipment/Instances/WellEquipmentInstance.h"
 #include "Net/UnrealNetwork.h"
 //#include "Net/Core/PushModel/PushModel.h"

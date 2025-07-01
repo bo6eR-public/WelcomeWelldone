@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Net/Serialization/FastArraySerializer.h"
+#include "Objects/Equipment/Profiles/WellEquipmentProfile.h"
 #include "WellEquipmentComponent.generated.h"
 
 
@@ -22,7 +23,7 @@ public:
 
 public:
 	UPROPERTY()
-	TSubclassOf<UWellEquipmentProfile> InstigatorProfile;
+	TSubclassOf<class UWellEquipmentProfile> InstigatorProfile = nullptr;
 	
 	UPROPERTY()
 	TObjectPtr<class UWellEquipmentInstance> Instance = nullptr;

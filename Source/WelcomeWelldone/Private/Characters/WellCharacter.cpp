@@ -41,6 +41,8 @@ AWellCharacter::AWellCharacter(const FObjectInitializer& ObjectInitializer) :
 
 	EquipmentComponent = CreateDefaultSubobject<UWellEquipmentComponent>(TEXT("EquipmentComponent"));
 	bReplicateUsingRegisteredSubObjectList = true;
+
+	SetNetUpdateFrequency(75.f);
 }
 
 void AWellCharacter::AbilityInputPressed(FGameplayTag InInputTag)
