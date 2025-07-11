@@ -63,8 +63,10 @@ void AWellPickuppable::StartSpawnDelay()
 	GetWorld()->GetTimerManager().SetTimer(SpawnDelayTimerHandle, FTimerDelegate::CreateLambda([this]()
 	{
 		SetVisibility(true);
-		PickuUpAbility = Spawner->GetAbilityClass();
-		
+		if (Spawner)
+		{
+			PickuUpAbility = Spawner->GetAbilityClass();
+		}
 		GetWorld()->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
 
 	}), SpawnDelay, false);
